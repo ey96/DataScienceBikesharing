@@ -1,6 +1,5 @@
 from setuptools import setup
 
-
 setup(
     name='nextbike',
     version='0.0.1dev1',
