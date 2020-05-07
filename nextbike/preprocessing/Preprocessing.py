@@ -43,6 +43,9 @@ def __addFeatureColumns(df_final=None):
     # converting timedelta to numeric and format in minutes
     df_final["trip_duration"] = pd.to_numeric(df_final["trip_duration"] / 60000000000)
 
+    df_final["coordinates_start"] = list(zip(df_final["latitude_start"],df_final["longitude_start"]))
+    df_final["coordinates_end"] = list(zip(df_final["latitude_end"],df_final["longitude_end"]))
+
     # adding the distance between start and end position
     df_final["distance"] = df_final.apply(
         lambda x: vincenty([x["latitude_start"], x["longitude_start"]],

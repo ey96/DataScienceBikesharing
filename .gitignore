@@ -127,3 +127,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+nextbike/.idea/workspace.xml
+nextbike/.idea/inspectionProfiles/profiles_settings.xml
+nextbike/.idea/modules.xml
+nextbike/.idea/nextbike.iml
+nextbike/.idea/vcs.xml
