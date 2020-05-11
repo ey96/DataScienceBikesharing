@@ -27,9 +27,9 @@ def __isWeekend(index_of_day):
     :return: True for Saturday (index_of_day = 5) and Sunday (index_of_day = 5), otherwise False
     """
     if index_of_day > 4:
-        return True
+        return 1
     else:
-        return False
+        return 0
 
 
 def __addFeatureColumns(df_final=None):
