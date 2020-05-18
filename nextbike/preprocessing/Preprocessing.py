@@ -15,7 +15,7 @@ def __read_file(path=None):
     if path is None:
         path = os.path.join(os.getcwd(), 'data/internal/dortmund.csv')
     try:
-        df = pd.read_csv(path,index_col=0)
+        df = pd.read_csv(path, index_col=0)
         return df
     except FileNotFoundError:
         print("Data file not found. Path was " + path)
