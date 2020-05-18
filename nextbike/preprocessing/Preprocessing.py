@@ -16,9 +16,9 @@ def is_weekend(index_of_day):
     :return: True for Saturday (index_of_day = 5) and Sunday (index_of_day = 5), otherwise False
     """
     if index_of_day > 4:
-        return True
+        return 1
     else:
-        return False
+        return 0
 
 
 def add_feature_columns(df_final=None):
@@ -63,28 +63,36 @@ def get_trip_data(path=None):
     """
 
     warnings.filterwarnings('ignore')
+
     df = input.__read_file(path)
-    df_start = df[(df["trip"] == "start") & (df["p_number"] != 0)]
-    df_end = df[(df["trip"] == "end") & (df["p_number"] != 0)]
+    df =df[((df["trip"] == "start") | (df["trip"]=="end"))]
+
+    deletionFilter = df["trip"] != df["trip"].shift(-1)
+    df = df[deletionFilter]
+
+    df_start = df[(df["trip"] == "start")]
+    df_end = df[(df["trip"] == "end")]
+
+
     df_start.reset_index(inplace=True)
     df_end.reset_index(inplace=True)
 
     # rename columns for merging
     df_start.rename(columns={"index": "index_start", "datetime": "datetime_start", "p_lat": "latitude_start",
-                             "p_lng": "longitude_start", "p_name": "p_name_start", "b_number": "b_number_start"},
+                             "p_lng": "longitude_start", "p_name": "p_name_start", "b_number": "b_number_start", "p_number": "p_number_start"},
                     inplace=True)
     df_end.rename(
         columns={"index": "index_end", "datetime": "datetime_end", "p_lat": "latitude_end", "p_lng": "longitude_end",
-                 "p_name": "p_name_end", "b_number": "b_number_end"}, inplace=True)
+                 "p_name": "p_name_end", "b_number": "b_number_end","p_number":"p_number_end"}, inplace=True)
 
     # drop redundant columns
     df_start.drop(['p_spot', 'p_place_type', 'trip',
                    'p_uid', 'p_bikes', 'b_bike_type',
-                   'p_number', 'p_bike'], inplace=True, axis=1)
+                   'p_bike'], inplace=True, axis=1)
 
     df_end.drop(['p_spot', 'p_place_type', 'trip',
                  'p_uid', 'p_bikes', 'b_bike_type',
-                 'p_number', 'p_bike'], inplace=True, axis=1)
+                 'p_bike'], inplace=True, axis=1)
 
     # modify the index_end to merge the dataframes by index_start and index_end
     df_end["index_end"] = df_end["index_end"] - 1
@@ -93,9 +101,13 @@ def get_trip_data(path=None):
     # the final dataframe consists of datasets which describe a trip with features for the start and the end of a trip
     df_final = pd.merge(df_start, df_end, left_on="index_start", right_on="index_end")
 
+    # p_number != 0 --> just focus on the trips from and to an official bike station
+    df_final = df_final[(df_final["p_number_start"] != 0) & (df_final["p_number_end"] != 0)]
+
     # drop the redundant columns
-    df_final.drop(["index_start", "index_end", "b_number_end"], inplace=True, axis=1)
-    df_final.rename({"b_number_start": "b_number"}, inplace=True)
+    df_final.drop(["index_start", "index_end", "b_number_end","p_number_start","p_number_end"], inplace=True, axis=1)
+
+    df_final.rename(columns={"b_number_start": "b_number"}, inplace=True)
 
     # converting objects to datetimes
     df_final["datetime_start"] = pd.to_datetime(df_final["datetime_start"])
