@@ -6,22 +6,11 @@ import datetime
 from datetime import timedelta
 import warnings
 
-
-def __read_file(path=None):
-    """
-    :param path: Path of the source file, if path = None dortmund.csv will be used.
-    :return: Read data as DataFrame
-    """
-    if path is None:
-        path = os.path.join(os.getcwd(), 'data/internal/dortmund.csv')
-    try:
-        df = pd.read_csv(path, index_col=0)
-        return df
-    except FileNotFoundError:
-        print("Data file not found. Path was " + path)
+from ..io import input
+from ..constants import CONSTANTS
 
 
-def __isWeekend(index_of_day):
+def is_weekend(index_of_day):
     """
     :param index_of_day: Weekday in integers (e.g. Monday = 0, Sunday = 6)
     :return: True for Saturday (index_of_day = 5) and Sunday (index_of_day = 5), otherwise False
@@ -32,7 +21,7 @@ def __isWeekend(index_of_day):
         return False
 
 
-def __addFeatureColumns(df_final=None):
+def add_feature_columns(df_final=None):
     """"
     :param df_final: Dataframe, that should be extended with new feature columns.
     """
@@ -51,11 +40,11 @@ def __addFeatureColumns(df_final=None):
         lambda x: vincenty([x["latitude_start"], x["longitude_start"]],
                            [x["latitude_end"], x["longitude_end"]], ), axis=1)
 
-    ## adding the weekday of the start time of a trip; stored in integers (0: monday, 6:sunday)
+    # adding the weekday of the start time of a trip; stored in integers (0: monday, 6:sunday)
     df_final['weekday'] = df_final['datetime_start'].dt.dayofweek
 
     # adding new boolean column "weekend"
-    df_final["weekend"] = df_final["weekday"].apply(lambda x: __isWeekend(x))
+    df_final["weekend"] = df_final["weekday"].apply(lambda x: is_weekend(x))
 
     # transform column "datatime_start" into several columns
     df_final["day"] = df_final["datetime_start"].apply(lambda x: x.day)
@@ -74,7 +63,7 @@ def get_trip_data(path=None):
     """
 
     warnings.filterwarnings('ignore')
-    df = __read_file(path)
+    df = input.__read_file(path)
     df_start = df[(df["trip"] == "start") & (df["p_number"] != 0)]
     df_end = df[(df["trip"] == "end") & (df["p_number"] != 0)]
     df_start.reset_index(inplace=True)
@@ -112,7 +101,7 @@ def get_trip_data(path=None):
     df_final["datetime_start"] = pd.to_datetime(df_final["datetime_start"])
     df_final["datetime_end"] = pd.to_datetime(df_final["datetime_end"])
 
-    __addFeatureColumns(df_final=df_final)
+    add_feature_columns(df_final=df_final)
 
     return df_final
 
@@ -121,5 +110,5 @@ def get_write_trip_data():
     """
     Transforms the data to trip data and saves the final dataframe in a new csv file.
     """
-    pd.DataFrame(data=get_trip_data()).to_csv('data/processed/dortmund_trips.csv')
+    pd.DataFrame(data=get_trip_data()).to_csv(os.path.join(CONSTANTS.PATH_PROCESSED, 'dortmund_trips.csv'))
     print("Transformed trip data for Dortmund successfully saved in a csv file!")
