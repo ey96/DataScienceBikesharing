@@ -7,7 +7,7 @@ from ..io import input
 from ..constants import CONSTANTS
 
 
-def is_weekend(index_of_day):
+def __isWeekend(index_of_day):
     """
     :param index_of_day: Weekday in integers (e.g. Monday = 0, Sunday = 6)
     :return: True for Saturday (index_of_day = 5) and Sunday (index_of_day = 5), otherwise False
