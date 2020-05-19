@@ -4,7 +4,7 @@ import pickle
 import geopandas as gpd
 from nextbike.constants import CONSTANTS
 
-from . import utils
+from nextbike import utils
 
 
 def read_gson(gson):
@@ -25,7 +25,7 @@ def read_csv(loc, name):
         print("Data file not found. Path was " + path)
 
 
-def __read_file(path=None):
+def read_file(path=None):
     """
     :param path: Path of the source file, if path = None dortmund.csv will be used.
     :return: Read data as DataFrame

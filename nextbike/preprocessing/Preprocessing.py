@@ -1,9 +1,6 @@
 import os
 from vincenty import vincenty
-import numpy as np
 import pandas as pd
-import datetime
-from datetime import timedelta
 import warnings
 
 from ..io import input
@@ -64,7 +61,7 @@ def get_trip_data(path=None):
 
     warnings.filterwarnings('ignore')
 
-    df = input.__read_file(path)
+    df = input.read_file(path)
     df =df[((df["trip"] == "start") | (df["trip"]=="end"))]
 
     deletionFilter = df["trip"] != df["trip"].shift(-1)

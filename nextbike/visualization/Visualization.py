@@ -4,6 +4,8 @@ import os
 import warnings
 warnings.filterwarnings('ignore')
 
+from..utils import cast_address_to_coord
+
 try:
     import pandas as pd
     import geopandas as gpd
@@ -115,13 +117,10 @@ def show_map_at_specific_day(df, date="2019-01-20", street="Signal Iduna Park", 
     tmp_map = create_map()
 
     if not coord:
-        try:
-            from geopy.geocoders import Nominatim
-        except ImportError as e:
-            print(e)
-
-    geo_locator = Nominatim(user_agent="http")
-    loc = geo_locator.geocode(street)
+        loc = cast_address_to_coord(street)
+    else:
+        loc = {"latitude": coord[0],
+               "longitude": coord[1]}
 
     folium.Marker(location=[loc.latitude, loc.longitude],
                   popup=loc,
