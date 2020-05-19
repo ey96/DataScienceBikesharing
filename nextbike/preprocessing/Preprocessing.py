@@ -18,7 +18,7 @@ def __isWeekend(index_of_day):
         return 0
 
 
-def add_feature_columns(df_final=None):
+def __add_feature_columns(df_final=None):
     """"
     :param df_final: Dataframe, that should be extended with new feature columns.
     """
@@ -41,7 +41,7 @@ def add_feature_columns(df_final=None):
     df_final['weekday'] = df_final['datetime_start'].dt.dayofweek
 
     # adding new boolean column "weekend"
-    df_final["weekend"] = df_final["weekday"].apply(lambda x: is_weekend(x))
+    df_final["weekend"] = df_final["weekday"].apply(lambda x: __isWeekend(x))
 
     # transform column "datatime_start" into several columns
     df_final["day"] = df_final["datetime_start"].apply(lambda x: x.day)
@@ -110,7 +110,7 @@ def get_trip_data(path=None):
     df_final["datetime_start"] = pd.to_datetime(df_final["datetime_start"])
     df_final["datetime_end"] = pd.to_datetime(df_final["datetime_end"])
 
-    add_feature_columns(df_final=df_final)
+    __add_feature_columns(df_final=df_final)
 
     return df_final
 
