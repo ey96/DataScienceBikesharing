@@ -2,6 +2,7 @@ import os
 from vincenty import vincenty
 import pandas as pd
 import warnings
+from shapely.geometry import Point
 
 from ..io import input
 from ..constants import CONSTANTS
@@ -61,7 +62,7 @@ def get_trip_data(path=None):
 
     warnings.filterwarnings('ignore')
 
-    df = input.read_file(path)
+    df = input.__read_file(path)
     df =df[((df["trip"] == "start") | (df["trip"]=="end"))]
 
     deletionFilter = df["trip"] != df["trip"].shift(-1)
@@ -119,5 +120,18 @@ def get_write_trip_data():
     """
     Transforms the data to trip data and saves the final dataframe in a new csv file.
     """
-    pd.DataFrame(data=get_trip_data()).to_csv(os.path.join(CONSTANTS.PATH_PROCESSED, 'dortmund_trips.csv'))
+    pd.DataFrame(data=get_trip_data()).to_csv(os.path.join(CONSTANTS.PATH_PROCESSED.value, 'dortmund_trips.csv'))
     print("Transformed trip data for Dortmund successfully saved in a csv file!")
+
+
+def __prep_geo_data(df):
+    # filter for districts of dortmund
+    df = df[df["note"].str.contains("Dortmund")]
+
+    # calculate the center of the districts (for later analysis)
+    df["longitude"] = df["geometry"].centroid.x
+    df["latitude"] = df["geometry"].centroid.y
+
+
+def __make_point(row):
+    return Point(row.longitude_start, row.latitude_start)
