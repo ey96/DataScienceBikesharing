@@ -32,7 +32,7 @@ def __isWeekend(index_of_day):
         return 0
 
 
-def __addFeatureColumns(df_final=None):
+def __addFeatureColumns(df_final=None, df_weather=None):
     """"
     :param df_final: Dataframe, that should be extended with new feature columns.
     """
@@ -63,14 +63,54 @@ def __addFeatureColumns(df_final=None):
     df_final["hour"] = df_final["datetime_start"].apply(lambda x: x.hour)
 
 
-def get_trip_data(path=None):
+    if df_weather is not None:
+        df_final["datetime_start_for_merge_with_weather"] = df_final["datetime_start"].apply(
+             lambda x: __formatDatetimeForMerging(str(x)))
+
+        # merge with weather data
+        df_final = pd.merge(df_final, df_weather, left_on="datetime_start_for_merge_with_weather", right_on="datetime",
+                            how='inner')
+
+        # drop redundant columns
+        df_final.drop(labels=["datetime", "datetime_start_for_merge_with_weather"], axis=1, inplace=True)
+
+    return df_final
+
+def __formatDatetimeForMerging(x):
+    # return as integer for merging
+    return int(x[:13].replace('-', '').replace(' ', ''))
+
+
+def __readWeatherFiles():
+    # read weather data
+    # temperature for each hour in 2019
+    temp = pd.read_csv("data/external/WaltropTemp.txt", sep=";")
+    temp.rename(columns={"TT_TU": "temperature °C", "MESS_DATUM": "datetime"}, inplace=True)
+    temp.drop(labels=["STATIONS_ID", "QN_9", "eor", "RF_TU"], axis=1, inplace=True)
+    temp = temp[(temp["datetime"] >= 2019010100) & (temp["datetime"] <= 2019123123)]
+    temp.reset_index(drop=True, inplace=True)
+
+    # two features (precipitation in mm & precipitaion y/n) for each hour in 2019
+    precipitation = pd.read_csv("data/external/WaltropPrecipitation.txt", sep=";")
+    precipitation.rename(columns={"  R1": "precipitation in mm", "MESS_DATUM": "datetime", "RS_IND": "precipitation"},
+                         inplace=True)
+    precipitation = precipitation[(precipitation["datetime"] >= 2019010100) & (precipitation["datetime"] <= 2019123123)]
+    precipitation.drop(labels=["STATIONS_ID", "QN_8", "eor", "WRTR"], axis=1, inplace=True)
+    precipitation.reset_index(drop=True, inplace=True)
+    weather = pd.merge(temp, precipitation, on="datetime")
+
+    return weather
+
+
+def get_trip_data(path=None,withWeather=False):
     """
     Reads the csv file and transforms the location data of bikes into trip data.
     :parameter
         path: Directory of the csv file, that should read in.
             Default is None --> reads dortmund.csv
+        withWeather: adds weather features to the final DataFrame
     :return:
-        Final Dataframe with added features.
+        Final DataFrame with added features.
     """
 
     warnings.filterwarnings('ignore')
@@ -122,14 +162,17 @@ def get_trip_data(path=None):
     df_final["datetime_start"] = pd.to_datetime(df_final["datetime_start"])
     df_final["datetime_end"] = pd.to_datetime(df_final["datetime_end"])
 
-    __addFeatureColumns(df_final=df_final)
+    if withWeather:
+        return __addFeatureColumns(df_final=df_final, df_weather= __readWeatherFiles())
+    else:
+        return __addFeatureColumns(df_final=df_final)
 
-    return df_final
 
-
-def get_write_trip_data():
+def get_write_trip_data(withWeather=False):
     """
     Transforms the data to trip data and saves the final dataframe in a new csv file.
+     :parameter
+        withWeather: adds weather features to the final DataFrame
     """
-    pd.DataFrame(data=get_trip_data()).to_csv('data/processed/dortmund_trips.csv')
+    pd.DataFrame(data=get_trip_data(withWeather=withWeather)).to_csv('data/processed/dortmund_trips.csv')
     print("Transformed trip data for Dortmund successfully saved in a csv file!")
