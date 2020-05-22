@@ -1,24 +1,11 @@
 import os
 from vincenty import vincenty
-import numpy as np
 import pandas as pd
-import datetime
-from datetime import timedelta
 import warnings
+from shapely.geometry import Point
 
-
-def __read_file(path=None):
-    """
-    :param path: Path of the source file, if path = None dortmund.csv will be used.
-    :return: Read data as DataFrame
-    """
-    if path is None:
-        path = os.path.join(os.getcwd(), 'data/internal/dortmund.csv')
-    try:
-        df = pd.read_csv(path,index_col=0)
-        return df
-    except FileNotFoundError:
-        print("Data file not found. Path was " + path)
+from ..io import input
+from ..constants import CONSTANTS
 
 
 def __isWeekend(index_of_day):
@@ -32,7 +19,10 @@ def __isWeekend(index_of_day):
         return 0
 
 
+
+
 def __addFeatureColumns(df_final=None, df_weather=None):
+
     """"
     :param df_final: Dataframe, that should be extended with new feature columns.
     """
@@ -51,7 +41,7 @@ def __addFeatureColumns(df_final=None, df_weather=None):
         lambda x: vincenty([x["latitude_start"], x["longitude_start"]],
                            [x["latitude_end"], x["longitude_end"]], ), axis=1)
 
-    ## adding the weekday of the start time of a trip; stored in integers (0: monday, 6:sunday)
+    # adding the weekday of the start time of a trip; stored in integers (0: monday, 6:sunday)
     df_final['weekday'] = df_final['datetime_start'].dt.dayofweek
 
     # adding new boolean column "weekend"
@@ -114,7 +104,8 @@ def get_trip_data(path=None,withWeather=False):
     """
 
     warnings.filterwarnings('ignore')
-    df = __read_file(path)
+
+    df = input.__read_file(path)
     df =df[((df["trip"] == "start") | (df["trip"]=="end"))]
 
     deletionFilter = df["trip"] != df["trip"].shift(-1)
@@ -122,6 +113,7 @@ def get_trip_data(path=None,withWeather=False):
 
     df_start = df[(df["trip"] == "start")]
     df_end = df[(df["trip"] == "end")]
+
 
     df_start.reset_index(inplace=True)
     df_end.reset_index(inplace=True)
@@ -162,6 +154,9 @@ def get_trip_data(path=None,withWeather=False):
     df_final["datetime_start"] = pd.to_datetime(df_final["datetime_start"])
     df_final["datetime_end"] = pd.to_datetime(df_final["datetime_end"])
 
+
+
+
     if withWeather:
         return __addFeatureColumns(df_final=df_final, df_weather= __readWeatherFiles())
     else:
@@ -174,5 +169,19 @@ def get_write_trip_data(withWeather=False):
      :parameter
         withWeather: adds weather features to the final DataFrame
     """
-    pd.DataFrame(data=get_trip_data(withWeather=withWeather)).to_csv('data/processed/dortmund_trips.csv')
+
+    pd.DataFrame(data=get_trip_data(withWeather=withWeather)).to_csv(os.path.join(CONSTANTS.PATH_PROCESSED.value, 'dortmund_trips.csv'))
     print("Transformed trip data for Dortmund successfully saved in a csv file!")
+
+
+def __prep_geo_data(df):
+    # filter for districts of dortmund
+    df = df[df["note"].str.contains("Dortmund")]
+
+    # calculate the center of the districts (for later analysis)
+    df["longitude"] = df["geometry"].centroid.x
+    df["latitude"] = df["geometry"].centroid.y
+
+
+def __make_point(row):
+    return Point(row.longitude_start, row.latitude_start)
