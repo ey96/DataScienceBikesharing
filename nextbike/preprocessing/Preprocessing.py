@@ -19,8 +19,6 @@ def __isWeekend(index_of_day):
         return 0
 
 
-
-
 def __addFeatureColumns(df_final=None, df_weather=None):
 
     """"
@@ -52,7 +50,6 @@ def __addFeatureColumns(df_final=None, df_weather=None):
     df_final["month"] = df_final["datetime_start"].apply(lambda x: x.month)
     df_final["hour"] = df_final["datetime_start"].apply(lambda x: x.hour)
 
-
     if df_weather is not None:
         df_final["datetime_start_for_merge_with_weather"] = df_final["datetime_start"].apply(
              lambda x: __formatDatetimeForMerging(str(x)))
@@ -66,6 +63,7 @@ def __addFeatureColumns(df_final=None, df_weather=None):
 
     return df_final
 
+
 def __formatDatetimeForMerging(x):
     # return as integer for merging
     return int(x[:13].replace('-', '').replace(' ', ''))
@@ -74,14 +72,14 @@ def __formatDatetimeForMerging(x):
 def __readWeatherFiles():
     # read weather data
     # temperature for each hour in 2019
-    temp = pd.read_csv("data/external/WaltropTemp.txt", sep=";")
+    temp = input.__read_file(os.path.join(CONSTANTS.PATH_EXTERNAL.value, "WaltropTemp.txt"), sep=";")
     temp.rename(columns={"TT_TU": "temperature °C", "MESS_DATUM": "datetime"}, inplace=True)
     temp.drop(labels=["STATIONS_ID", "QN_9", "eor", "RF_TU"], axis=1, inplace=True)
     temp = temp[(temp["datetime"] >= 2019010100) & (temp["datetime"] <= 2019123123)]
     temp.reset_index(drop=True, inplace=True)
 
     # two features (precipitation in mm & precipitaion y/n) for each hour in 2019
-    precipitation = pd.read_csv("data/external/WaltropPrecipitation.txt", sep=";")
+    precipitation = input.__read_file(os.path.join(CONSTANTS.PATH_EXTERNAL.value, "WaltropPrecipitation.txt"), sep=";")
     precipitation.rename(columns={"  R1": "precipitation in mm", "MESS_DATUM": "datetime", "RS_IND": "precipitation"},
                          inplace=True)
     precipitation = precipitation[(precipitation["datetime"] >= 2019010100) & (precipitation["datetime"] <= 2019123123)]
@@ -92,7 +90,7 @@ def __readWeatherFiles():
     return weather
 
 
-def get_trip_data(path=None,withWeather=False):
+def get_trip_data(path=None, withWeather=False):
     """
     Reads the csv file and transforms the location data of bikes into trip data.
     :parameter
@@ -154,23 +152,20 @@ def get_trip_data(path=None,withWeather=False):
     df_final["datetime_start"] = pd.to_datetime(df_final["datetime_start"])
     df_final["datetime_end"] = pd.to_datetime(df_final["datetime_end"])
 
-
-
-
     if withWeather:
         return __addFeatureColumns(df_final=df_final, df_weather= __readWeatherFiles())
     else:
         return __addFeatureColumns(df_final=df_final)
 
 
-def get_write_trip_data(withWeather=False):
+def get_write_trip_data(df):
     """
-    Transforms the data to trip data and saves the final dataframe in a new csv file.
+    saves the final dataframe in a new csv file.
      :parameter
-        withWeather: adds weather features to the final DataFrame
+        df: the dataframe to be saved as csv
     """
 
-    pd.DataFrame(data=get_trip_data(withWeather=withWeather)).to_csv(os.path.join(CONSTANTS.PATH_PROCESSED.value, 'dortmund_trips.csv'))
+    df.to_csv(os.path.join(CONSTANTS.PATH_PROCESSED.value, 'dortmund_trips.csv'))
     print("Transformed trip data for Dortmund successfully saved in a csv file!")
 
 
@@ -182,6 +177,81 @@ def __prep_geo_data(df):
     df["longitude"] = df["geometry"].centroid.x
     df["latitude"] = df["geometry"].centroid.y
 
+    return df
+
 
 def __make_point(row):
     return Point(row.longitude_start, row.latitude_start)
+
+
+def __get_time_data(df):
+    # get the trip data for different times of a day
+    fife_nine = df.loc[(df.hour < 10) & (df.hour > 5)]
+    ten_three = df.loc[(df.hour < 16) & (df.hour > 9)]
+    four_eight = df.loc[(df.hour < 21) & (df.hour > 15)]
+    nine_four = df.loc[(df.hour < 6) | (df.hour > 20)]
+
+    # aggregate the amount of rentals per station for each time period
+    fife_nine = fife_nine.groupby(['latitude_start', 'longitude_start']).count()
+    ten_three = ten_three.groupby(['latitude_start', 'longitude_start']).count()
+    four_eight = four_eight.groupby(['latitude_start', 'longitude_start']).count()
+    nine_four = nine_four.groupby(['latitude_start', 'longitude_start']).count()
+
+    fife_nine.reset_index(inplace=True)
+    ten_three.reset_index(inplace=True)
+    four_eight.reset_index(inplace=True)
+    nine_four.reset_index(inplace=True)
+
+    time_data = [fife_nine[['latitude_start', 'longitude_start', 'hour']].values.tolist(),
+                 ten_three[['latitude_start', 'longitude_start', 'hour']].values.tolist(),
+                 four_eight[['latitude_start', 'longitude_start', 'hour']].values.tolist(),
+                 nine_four[['latitude_start', 'longitude_start', 'hour']].values.tolist()]
+
+    return time_data
+
+
+def __get_month_data(df):
+    # get the data per month
+    trips_jan = df.loc[(df.month == 1)]
+    trips_feb = df.loc[(df.month == 2)]
+    trips_mar = df.loc[(df.month == 3)]
+    trips_apr = df.loc[(df.month == 4)]
+    trips_may = df.loc[(df.month == 5)]
+    trips_jun = df.loc[(df.month == 6)]
+
+    # july does not exist
+
+    trips_aug = df.loc[(df.month == 8)]
+    trips_sep = df.loc[(df.month == 9)]
+    trips_oct = df.loc[(df.month == 10)]
+    trips_nov = df.loc[(df.month == 11)]
+    trips_dec = df.loc[(df.month == 12)]
+
+    # aggregate the amount of rentals per (mapped) district
+    trips_jan = trips_jan.groupby("plz").agg({'count': 'sum', 'longitude': 'mean', 'latitude': 'mean'})
+    trips_feb = trips_feb.groupby("plz").agg({'count': 'sum', 'longitude': 'mean', 'latitude': 'mean'})
+    trips_mar = trips_mar.groupby("plz").agg({'count': 'sum', 'longitude': 'mean', 'latitude': 'mean'})
+    trips_apr = trips_apr.groupby("plz").agg({'count': 'sum', 'longitude': 'mean', 'latitude': 'mean'})
+    trips_may = trips_may.groupby("plz").agg({'count': 'sum', 'longitude': 'mean', 'latitude': 'mean'})
+    trips_jun = trips_may.groupby("plz").agg({'count': 'sum', 'longitude': 'mean', 'latitude': 'mean'})
+
+    trips_aug = trips_jun.groupby("plz").agg({'count': 'sum', 'longitude': 'mean', 'latitude': 'mean'})
+    trips_sep = trips_sep.groupby("plz").agg({'count': 'sum', 'longitude': 'mean', 'latitude': 'mean'})
+    trips_oct = trips_oct.groupby("plz").agg({'count': 'sum', 'longitude': 'mean', 'latitude': 'mean'})
+    trips_nov = trips_nov.groupby("plz").agg({'count': 'sum', 'longitude': 'mean', 'latitude': 'mean'})
+    trips_dec = trips_dec.groupby("plz").agg({'count': 'sum', 'longitude': 'mean', 'latitude': 'mean'})
+
+    data = [trips_jan[['latitude', 'longitude', 'count']].values.tolist(),
+            trips_feb[['latitude', 'longitude', 'count']].values.tolist(),
+            trips_mar[['latitude', 'longitude', 'count']].values.tolist(),
+            trips_apr[['latitude', 'longitude', 'count']].values.tolist(),
+            trips_may[['latitude', 'longitude', 'count']].values.tolist(),
+            trips_jun[['latitude', 'longitude', 'count']].values.tolist(),
+            trips_aug[['latitude', 'longitude', 'count']].values.tolist(),
+            trips_sep[['latitude', 'longitude', 'count']].values.tolist(),
+            trips_oct[['latitude', 'longitude', 'count']].values.tolist(),
+            trips_nov[['latitude', 'longitude', 'count']].values.tolist(),
+            trips_dec[['latitude', 'longitude', 'count']].values.tolist()]
+
+    return data
+

@@ -36,7 +36,7 @@ def read_csv(loc, name, **kwargs):
         elif loc.lower() == "external":
             path = os.path.join(CONSTANTS.PATH_EXTERNAL.value, name)
         else:
-            path = os.path.join(CONSTANTS.PATH_RAW.value, name)
+            path = os.path.join(CONSTANTS.PATH_PROCESSED.value, name)
         try:
             df = pd.read_csv(path, **kwargs)
             return df
@@ -44,7 +44,7 @@ def read_csv(loc, name, **kwargs):
             print("Data file not found. Path was " + path)
 
 
-def __read_file(path=None):
+def __read_file(path=None, **kwargs):
     """
     :param path: Path of the source file, if path = None dortmund.csv will be used.
     :return: Read data as DataFrame
@@ -52,7 +52,7 @@ def __read_file(path=None):
     if path is None:
         path = os.path.join(os.getcwd(), CONSTANTS.PATH_RAW.value + "dortmund.csv")
     try:
-        df = pd.read_csv(path, index_col=0)
+        df = pd.read_csv(path, **kwargs)
         return df
     except FileNotFoundError:
         print("Data file not found. Path was " + path)
