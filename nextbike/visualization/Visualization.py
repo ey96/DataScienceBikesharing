@@ -61,6 +61,117 @@ def create_map(shape="dortmund_plz.geojson", center=CONSTANTS.CENTER_OF_DORTMUND
     return map
 
 
+def show_station_map(df):
+
+    """
+
+    :param df:
+    :return:
+    """
+
+    stations_map = create_map()
+
+    for index, row in df.iterrows():
+        station_rentals = row['count']
+
+        station_name = row['p_name_start']
+
+        station_info = "Name: {}\n\nAmount of rentals: {}\n".format(station_name, station_rentals)
+
+        folium.Circle(
+            location=[row['latitude_start'], row['longitude_start']],
+            popup=station_info,
+            radius=row['count'] * 0.009,
+            color='red',
+            fill=True,
+            fill_color='#red'
+        ).add_to(stations_map)
+
+    return stations_map
+
+
+def show_rental_for_june(df):
+    """
+
+    :param df:
+    :return:
+    """
+
+    df["count"] = df["count"].fillna(0)
+
+    quan = np.arange(0, 1.1, 0.1)
+    bins = list(df['count'].quantile(quan))
+    districts_map = create_map(zoom_start=10.5)
+
+    folium.Choropleth(
+        geo_data=df,
+        data=df,
+        columns=['plz', 'count'],
+        key_on='properties.plz',
+        fill_color='RdYlGn',
+        fill_opacity=0.7,
+        line_opacity=0.2,
+        line_weight=1,
+        line_color='black',
+        legend_name='Number of bookings per postcode',
+        bins=bins
+    ).add_to(districts_map)
+
+    # Show information (postal code and rental amount) when mouse over district
+    folium.GeoJson(
+        df,
+        style_function=lambda feature: {"color": "black", "weight": 1, },
+        highlight_function=lambda x: {"weight": 2, "color": "black", "fillOpacity": 0.5},
+        tooltip=folium.features.GeoJsonTooltip(fields=['count', 'plz'], aliases=['Amount of rentals:', 'Postcal code:'])
+    ).add_to(districts_map)
+
+    return districts_map
+
+
+def show_time_heatmap(df, df2):
+    """
+
+    :param df:
+    :param df2:
+    :return:
+    """
+    # visualize
+    heatmap_daily = create_map(zoom_start=11.2)
+
+    plugins.HeatMapWithTime(df,
+                            index=['5:00 - 9:00', '10:00 - 15:00', '16:00 - 20:00', '21:00 - 4:00'],
+                            auto_play=True,
+                            radius=30,
+                            overlay=False,
+                            use_local_extrema=True).add_to(heatmap_daily)
+
+    folium.Choropleth(
+        geo_data=df2,
+        fill_opacity=0.1,
+        line_opacity=1, ).add_to(heatmap_daily)
+
+    return heatmap_daily
+
+
+def show_heatmap_monthly_per_district(df, df2):
+
+    heatmap_monthly_per_district = create_map(zoom_start=11.2)
+
+    plugins.HeatMapWithTime(df,
+                            index=['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                            auto_play=True,
+                            radius=30,
+                            overlay=False,
+                            use_local_extrema=True).add_to(heatmap_monthly_per_district)
+
+    folium.Choropleth(
+        geo_data=df2,
+        fill_opacity=0.1,
+        line_opacity=1, ).add_to(heatmap_monthly_per_district)
+
+    return heatmap_monthly_per_district
+
+
 def station_capacity(df, radius=20):
     """
     Creat's a Folium-Heatmap based on the start-coordinates and end-coordinates
@@ -70,8 +181,8 @@ def station_capacity(df, radius=20):
     :return: Folium-Heatmap
     """
     tmp_map = create_map()
-    tmp_map.add_child(plugins.HeatMap(df["coordinates_start"], radius=radius))
-    tmp_map.add_child(plugins.HeatMap(df["coordinates_end"], radius=radius))
+    tmp_map.add_child(plugins.HeatMap(df[["latitude_start", "longitude_start"]], radius=radius))
+    tmp_map.add_child(plugins.HeatMap(df[["latitude_end", "longitude_end"]], radius=radius))
 
     return tmp_map
 
@@ -122,7 +233,7 @@ def show_trips(df, random=True, amount=500):
     i = 0
     for index, row in df.iterrows():
         if i <= amount:
-            folium.ColorLine([row["coordinates_start"], row["coordinates_end"]],
+            folium.ColorLine([[row["latitude_start"],row["longitude_start"]],[row["latitude_end"],row["longitude_end"]]],
                              colors=[0, 1, 2],
                              colormap=["blue", "green"],
                              weight=1,
