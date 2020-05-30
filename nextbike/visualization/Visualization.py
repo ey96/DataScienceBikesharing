@@ -64,9 +64,10 @@ def create_map(shape="dortmund_plz.geojson", center=CONSTANTS.CENTER_OF_DORTMUND
 def show_station_map(df):
 
     """
-
-    :param df:
-    :return:
+    Creates a Folium-map which shows the stations of Dortmund as circles. The circles are clickable and get bigger
+    with the (overall) demand.
+    :param df: the dataframe consisting of the stations and their overall demand (amount of bookings)
+    :return: Folium-map
     """
 
     stations_map = create_map()
@@ -92,9 +93,10 @@ def show_station_map(df):
 
 def show_rental_for_june(df):
     """
-
-    :param df:
-    :return:
+    Creates a Folium-map which shows the amount of rentals per postal-code-area in Dortmund in June. The information is
+    displayed when the mouse is hovered over the areas.
+    :param df: the dataframe with the postal code areas (plz) and their amount of rentals (count)
+    :return: Folium-map
     """
 
     df["count"] = df["count"].fillna(0)
@@ -130,10 +132,12 @@ def show_rental_for_june(df):
 
 def show_time_heatmap(df, df2):
     """
-
-    :param df:
-    :param df2:
-    :return:
+    Creates a Folium-heatmap (with a slider) that shows the demand of bikes/amount of rentals at different times of a day.
+    The slider can be used to select the time period to display. The heat is constructed by the coordinates of the stations.
+    :param df: the dataframe with the postal code areas and their amount of rentals
+    :param df2: dataframe that consists of the demand of each station and their coordinates to different times (This data
+    is given by get_time_data
+    :return: Folium-heatmap
     """
     # visualize
     heatmap_daily = create_map(zoom_start=11.2)
@@ -154,6 +158,14 @@ def show_time_heatmap(df, df2):
 
 
 def show_heatmap_monthly_per_district(df, df2):
+    """
+    Creates a Folium-heatmap (with a slider) that shows the demand of bikes/amount of rentals in different months.
+    The slider can be used to select the month to display. The heat is constructed by the center of the postal-code-areas.
+    :param df: the dataframe with the postal code areas and their amount of rentals
+    :param df2: dataframe that consists of the demand of each postcal-code-center and their coordinates in different months (This data
+    is given by __get_month_data
+    :return: Folium-heatmap
+    """
 
     heatmap_monthly_per_district = create_map(zoom_start=11.2)
 
@@ -174,7 +186,7 @@ def show_heatmap_monthly_per_district(df, df2):
 
 def station_capacity(df, radius=20):
     """
-    Creat's a Folium-Heatmap based on the start-coordinates and end-coordinates
+    Creates a Folium-Heatmap based on the start-coordinates and end-coordinates
 
     :param df: the dataframe
     :param radius: specify the radius of the heatmap default: 20
@@ -189,7 +201,7 @@ def station_capacity(df, radius=20):
 
 def most_used_station(df, random=True, amount=1000):
     """
-    Creats a grouping of the most-used-stations. You can either choose to picks random stations or the first "amount"
+    Creates a grouping of the most-used-stations. You can either choose to picks random stations or the first "amount"
      of stations in the df
 
     :param df: the dataframe
@@ -217,7 +229,7 @@ def most_used_station(df, random=True, amount=1000):
 
 def show_trips(df, random=True, amount=500):
     """
-    Creat's a Foliom-ColorLine, which shows random trips. You can either choose to picks random trips or the
+    Creates a Foliom-ColorLine, which shows random trips. You can either choose to picks random trips or the
     first "amount" of trips in the df
 
     :param df: the dataframe

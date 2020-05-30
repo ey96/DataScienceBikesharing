@@ -11,7 +11,7 @@ from ..constants import CONSTANTS
 def __isWeekend(index_of_day):
     """
     :param index_of_day: Weekday in integers (e.g. Monday = 0, Sunday = 6)
-    :return: True for Saturday (index_of_day = 5) and Sunday (index_of_day = 5), otherwise False
+    :return: 1 for Saturday (index_of_day = 5) and Sunday (index_of_day = 5), otherwise 0
     """
     if index_of_day > 4:
         return 1
@@ -170,6 +170,11 @@ def get_write_trip_data(df):
 
 
 def __prep_geo_data(df):
+    """
+    Filters the Geo-dataframe (postal code areas) of Germany to Dortmund and calculates the center of each postal code area.
+    :parameter
+        df: DataFrame that contains geographical information (postal code areas) of Germany
+    """
     # filter for districts of dortmund
     df = df[df["note"].str.contains("Dortmund")]
 
@@ -181,6 +186,11 @@ def __prep_geo_data(df):
 
 
 def __make_point(row):
+    """
+    Transforms the coordinates to geographical points.
+    :return:
+        Geographical point (numerical)
+    """
     return Point(row.longitude_start, row.latitude_start)
 
 
@@ -233,9 +243,9 @@ def __get_month_data(df):
     trips_mar = trips_mar.groupby("plz").agg({'count': 'sum', 'longitude': 'mean', 'latitude': 'mean'})
     trips_apr = trips_apr.groupby("plz").agg({'count': 'sum', 'longitude': 'mean', 'latitude': 'mean'})
     trips_may = trips_may.groupby("plz").agg({'count': 'sum', 'longitude': 'mean', 'latitude': 'mean'})
-    trips_jun = trips_may.groupby("plz").agg({'count': 'sum', 'longitude': 'mean', 'latitude': 'mean'})
+    trips_jun = trips_jun.groupby("plz").agg({'count': 'sum', 'longitude': 'mean', 'latitude': 'mean'})
 
-    trips_aug = trips_jun.groupby("plz").agg({'count': 'sum', 'longitude': 'mean', 'latitude': 'mean'})
+    trips_aug = trips_aug.groupby("plz").agg({'count': 'sum', 'longitude': 'mean', 'latitude': 'mean'})
     trips_sep = trips_sep.groupby("plz").agg({'count': 'sum', 'longitude': 'mean', 'latitude': 'mean'})
     trips_oct = trips_oct.groupby("plz").agg({'count': 'sum', 'longitude': 'mean', 'latitude': 'mean'})
     trips_nov = trips_nov.groupby("plz").agg({'count': 'sum', 'longitude': 'mean', 'latitude': 'mean'})
