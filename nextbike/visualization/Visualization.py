@@ -75,7 +75,7 @@ def show_station_map(df):
     for index, row in df.iterrows():
         station_rentals = row['count']
 
-        station_name = row['p_name_start']
+        station_name = replace_umlauts(row['p_name_start'])
 
         station_info = "Name: {}\n\nAmount of rentals: {}\n".format(station_name, station_rentals)
 
@@ -292,4 +292,15 @@ def show_map_at_specific_day(df, date="2019-01-20", street="Signal Iduna Park", 
                          opacity=0.5).add_to(tmp_map)
 
     return tmp_map
+
+
+def replace_umlauts(stationName):
+    """
+    The umlauts of the name of station (or a string in general) are replaced by normal letters
+    :param stationName: The name of a station (or a string in general)
+    :return: The name of a station (or a string in general) where the umlauts have been replaced by normal letters
+    """
+
+    name_cleaned = stationName.replace("Ä", "Ae").replace("Ö", "Oe").replace("Ü", "Ue").replace("ß", "ss").replace("ä", "ae").replace("ö", "oe").replace("ü", "ue")
+    return name_cleaned
 
