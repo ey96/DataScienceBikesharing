@@ -122,7 +122,7 @@ def __readWeatherFiles():
     return weather
 
 
-def get_trip_data(path=None,withWeather=True):
+def get_trip_data(path=None, withWeather=True):
     """
     Reads the csv file and transforms the location data of bikes into trip data.
     :parameter
