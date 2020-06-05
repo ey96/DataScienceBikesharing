@@ -19,6 +19,18 @@ def __isWeekend(index_of_day):
         return 0
 
 
+def __get_tripLabel(row):
+    if ((row['towardsUniversity'] == 1) & (row['awayFromUniversity'] == 0)):
+        return 'towardsUniversity'
+    if ((row['towardsUniversity'] == 0) & (row['awayFromUniversity'] == 1)):
+        return 'awayFromUniveristy'
+    if ((row['towardsUniversity'] == 1) & (row['awayFromUniversity'] == 1)):
+        return 'towardsUniversity'
+    if ((row['towardsUniversity'] == 0) & (row['awayFromUniversity'] == 0)):
+        return 'noUniversityRide'
+
+    warnings.warn("Warning...........Message")
+    return None
 
 
 def __addFeatureColumns(df_final=None, df_weather=None):
@@ -41,6 +53,13 @@ def __addFeatureColumns(df_final=None, df_weather=None):
         lambda x: vincenty([x["latitude_start"], x["longitude_start"]],
                            [x["latitude_end"], x["longitude_end"]], ), axis=1)
 
+    # adding another distances
+    df_final["distanceToUniversity"] = df_final.apply(lambda x: vincenty([x["latitude_start"], x["longitude_start"]],
+                                                                         [51.4928736,7.415647], ), axis=1)
+    df_final["distanceToCentralStation"] = df_final.apply(
+        lambda x: vincenty([x["latitude_start"], x["longitude_start"]],
+                           [51.5175, 7.458889], ), axis=1)
+
     # adding the weekday of the start time of a trip; stored in integers (0: monday, 6:sunday)
     df_final['weekday'] = df_final['datetime_start'].dt.dayofweek
 
@@ -51,7 +70,18 @@ def __addFeatureColumns(df_final=None, df_weather=None):
     df_final["day"] = df_final["datetime_start"].apply(lambda x: x.day)
     df_final["month"] = df_final["datetime_start"].apply(lambda x: x.month)
     df_final["hour"] = df_final["datetime_start"].apply(lambda x: x.hour)
+    df_final["minute"] = df_final["datetime_start"].apply(lambda x: x.minute)
+    df_final["day_of_year"] = df_final["datetime_start"].apply(lambda x: x.timetuple().tm_yday)
 
+    # add the attribute whether a trip was done towards/away from university
+    #array with university stations
+    university_stations = ["TU Dortmund Seminarraumgebäude 1", "TU Dortmund Hörsaalgebäude 2", "Universität/S-Bahnhof",
+                           "TU Dortmund Emil-Figge-Straße 50", "FH-Dortmund Emil-Figge-Straße 42"]
+
+    df_final['towardsUniversity'] = df_final['p_name_end'].apply(lambda x: 1 if x in university_stations else 0)
+    df_final['awayFromUniversity'] = df_final['p_name_start'].apply(lambda x: 1 if x in university_stations else 0)
+
+    df_final['tripLabel'] = df_final.apply(lambda row: __get_tripLabel(row), axis=1)
 
     if df_weather is not None:
         df_final["datetime_start_for_merge_with_weather"] = df_final["datetime_start"].apply(
@@ -74,14 +104,14 @@ def __formatDatetimeForMerging(x):
 def __readWeatherFiles():
     # read weather data
     # temperature for each hour in 2019
-    temp = pd.read_csv("data/external/WaltropTemp.txt", sep=";")
+    temp = pd.read_csv("../data/external/WaltropTemp.txt", sep=";")
     temp.rename(columns={"TT_TU": "temperature °C", "MESS_DATUM": "datetime"}, inplace=True)
     temp.drop(labels=["STATIONS_ID", "QN_9", "eor", "RF_TU"], axis=1, inplace=True)
     temp = temp[(temp["datetime"] >= 2019010100) & (temp["datetime"] <= 2019123123)]
     temp.reset_index(drop=True, inplace=True)
 
     # two features (precipitation in mm & precipitaion y/n) for each hour in 2019
-    precipitation = pd.read_csv("data/external/WaltropPrecipitation.txt", sep=";")
+    precipitation = pd.read_csv("../data/external/WaltropPrecipitation.txt", sep=";")
     precipitation.rename(columns={"  R1": "precipitation in mm", "MESS_DATUM": "datetime", "RS_IND": "precipitation"},
                          inplace=True)
     precipitation = precipitation[(precipitation["datetime"] >= 2019010100) & (precipitation["datetime"] <= 2019123123)]
@@ -92,7 +122,7 @@ def __readWeatherFiles():
     return weather
 
 
-def get_trip_data(path=None,withWeather=False):
+def get_trip_data(path=None,withWeather=True):
     """
     Reads the csv file and transforms the location data of bikes into trip data.
     :parameter
@@ -154,16 +184,13 @@ def get_trip_data(path=None,withWeather=False):
     df_final["datetime_start"] = pd.to_datetime(df_final["datetime_start"])
     df_final["datetime_end"] = pd.to_datetime(df_final["datetime_end"])
 
-
-
-
     if withWeather:
         return __addFeatureColumns(df_final=df_final, df_weather= __readWeatherFiles())
     else:
         return __addFeatureColumns(df_final=df_final)
 
 
-def get_write_trip_data(withWeather=False):
+def get_write_trip_data(withWeather=True):
     """
     Transforms the data to trip data and saves the final dataframe in a new csv file.
      :parameter
