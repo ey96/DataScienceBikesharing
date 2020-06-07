@@ -1,9 +1,26 @@
 from sklearn.preprocessing import StandardScaler
 from sklearn import linear_model, decomposition
 from sklearn.pipeline import Pipeline
-from sklearn.model_selection import GridSearchCV, cross_val_score
+from sklearn.model_selection import GridSearchCV, cross_val_score, train_test_split
 
 import numpy as np
+
+
+algorithm, precision, recall, f1score, support, exetime, desc = [], [], [], [], [], [], []
+
+
+def __init__(df):
+    y = df['tripLabel']
+    # use only start-information to classify the trip-class
+    X = df[['weekend', 'hour', 'distanceToUniversity', 'month', 'area_start']]
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+
+    return {
+        'X_train': X_train,
+        'X_test': X_test,
+        'y_train': y_train,
+        'y_test': y_test
+    }
 
 
 # How to optimize hyper-parameters of a Logistic Regression model using Grid Search in Python

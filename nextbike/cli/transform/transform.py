@@ -1,7 +1,5 @@
 import click
-
-from tqdm import tqdm
-from time import sleep
+from halo import Halo
 
 from nextbike.preprocessing.Preprocessing import get_trip_data
 from nextbike.io.output import __save_trip_data
@@ -18,6 +16,7 @@ HELP_NAME = '''
 You can specify a unique name for the transformed file e.g. 'transformed_data.csv'
 If you don't specify a unique name, we name this file 'dortmund_transformation.csv'
 '''
+spinner = Halo(text='Loading', spinner='dots')
 
 
 @click.command()
@@ -34,14 +33,16 @@ def transform(path, name, w):
     You can find the new file under this location 'data/output/
 
     """
-
+    spinner.start()
     path = HEAD + path
-    click.echo('Dataframe loaded from ' + path)
+    spinner.succeed('data was load successfully')
+    spinner.warn('transform-data...this step can take a couple of minutes')
     if w:
-        df = get_trip_data(path, withWeather=True, head=True)
-        click.echo('Information about the weather is included in the transformation')
+        df = get_trip_data(path, with_weather=True, head=True)
+        spinner.info('Information about the weather is included in the transformation')
     else:
         df = get_trip_data(path)
-    click.echo('Dataframe has been transformed')
+    spinner.succeed('Dataframe has been transformed')
     __save_trip_data(df, name)
-    click.echo('Dataframe saved to data/output/' + name)
+    spinner.succeed('Dataframe saved to data/output/' + name)
+    spinner.stop()
