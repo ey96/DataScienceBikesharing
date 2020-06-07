@@ -1,11 +1,18 @@
+import pathlib
+from pathlib import Path
 from enum import Enum
+
+
+__FILE__ = path = Path(pathlib.Path().absolute()).parent
+HEAD = 'ss_20_pds/'
 
 
 class CONSTANTS(Enum):
     # path
-    PATH_RAW = '../data/internal/'
-    PATH_EXTERNAL = '../data/external/'
-    PATH_PROCESSED = '../data/processed/'
+    PATH_RAW = 'data/internal/'
+    PATH_EXTERNAL = 'data/external/'
+    PATH_PROCESSED = 'data/processed/'
+    PATH_OUTPUT = 'data/output'
 
     # map
     CENTER_OF_DORTMUND = [51.511838, 7.456943]

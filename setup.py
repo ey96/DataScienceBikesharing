@@ -8,8 +8,8 @@ setup(
     author_email="blankspace@blankspace",
     packages=["nextbike"],
     install_requires=['pandas', 'scikit-learn', 'click', 'geopy', 'geopandas', 'numpy', 'folium', 'shapely', 'seaborn',
-                      'matplotlib', 'vincenty'],
+                      'matplotlib', 'vincenty', 'tqdm'],
     entry_points={
-        'console_scripts': ['nextbike=nextbike.cli:main']
+        'console_scripts': ['nextbike=nextbike.cli.cli:cli']
     }
 )

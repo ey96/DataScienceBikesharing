@@ -105,14 +105,14 @@ def __formatDatetimeForMerging(x):
 def __readWeatherFiles():
     # read weather data
     # temperature for each hour in 2019
-    temp = input.__read_file(os.path.join(CONSTANTS.PATH_EXTERNAL.value, "WaltropTemp.txt"), sep=";")
+    temp = input.read_file(os.path.join(CONSTANTS.PATH_EXTERNAL.value, "WaltropTemp.txt"), sep=";")
     temp.rename(columns={"TT_TU": "temperature °C", "MESS_DATUM": "datetime"}, inplace=True)
     temp.drop(labels=["STATIONS_ID", "QN_9", "eor", "RF_TU"], axis=1, inplace=True)
     temp = temp[(temp["datetime"] >= 2019010100) & (temp["datetime"] <= 2019123123)]
     temp.reset_index(drop=True, inplace=True)
 
     # two features (precipitation in mm & precipitaion y/n) for each hour in 2019
-    precipitation = input.__read_file(os.path.join(CONSTANTS.PATH_EXTERNAL.value, "WaltropPrecipitation.txt"), sep=";")
+    precipitation = input.read_file(os.path.join(CONSTANTS.PATH_EXTERNAL.value, "WaltropPrecipitation.txt"), sep=";")
     precipitation.rename(columns={"  R1": "precipitation in mm", "MESS_DATUM": "datetime", "RS_IND": "precipitation"},
                          inplace=True)
     precipitation = precipitation[(precipitation["datetime"] >= 2019010100) & (precipitation["datetime"] <= 2019123123)]
@@ -123,7 +123,7 @@ def __readWeatherFiles():
     return weather
 
 
-def get_trip_data(path=None, withWeather=True):
+def get_trip_data(path=None, withWeather=False):
     """
     Reads the csv file and transforms the location data of bikes into trip data.
     :parameter
@@ -136,15 +136,14 @@ def get_trip_data(path=None, withWeather=True):
 
     warnings.filterwarnings('ignore')
 
-    df = input.__read_file(path)
-    df =df[((df["trip"] == "start") | (df["trip"]=="end"))]
+    df = input.read_file(path)
+    df = df[((df["trip"] == "start") | (df["trip"]=="end"))]
 
     deletionFilter = df["trip"] != df["trip"].shift(-1)
     df = df[deletionFilter]
 
     df_start = df[(df["trip"] == "start")]
     df_end = df[(df["trip"] == "end")]
-
 
     df_start.reset_index(inplace=True)
     df_end.reset_index(inplace=True)
@@ -155,7 +154,7 @@ def get_trip_data(path=None, withWeather=True):
                     inplace=True)
     df_end.rename(
         columns={"index": "index_end", "datetime": "datetime_end", "p_lat": "latitude_end", "p_lng": "longitude_end",
-                 "p_name": "p_name_end", "b_number": "b_number_end","p_number":"p_number_end"}, inplace=True)
+                 "p_name": "p_name_end", "b_number": "b_number_end", "p_number":"p_number_end"}, inplace=True)
 
     # drop redundant columns
     df_start.drop(['p_spot', 'p_place_type', 'trip',
@@ -185,24 +184,10 @@ def get_trip_data(path=None, withWeather=True):
     df_final["datetime_start"] = pd.to_datetime(df_final["datetime_start"])
     df_final["datetime_end"] = pd.to_datetime(df_final["datetime_end"])
 
-
-
-
     if withWeather:
-        return __addFeatureColumns(df_final=df_final, df_weather= __readWeatherFiles())
+        return __addFeatureColumns(df_final=df_final, df_weather=__readWeatherFiles())
     else:
         return __addFeatureColumns(df_final=df_final)
-
-
-def get_write_trip_data(df):
-    """
-    saves the final dataframe in a new csv file.
-     :parameter
-        df: the dataframe to be saved as csv
-    """
-
-    df.to_csv(os.path.join(CONSTANTS.PATH_PROCESSED.value, 'dortmund_trips.csv'))
-    print("Transformed trip data for Dortmund successfully saved in a csv file!")
 
 
 def __prep_geo_data(df):
