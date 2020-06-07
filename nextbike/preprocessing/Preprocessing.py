@@ -232,7 +232,7 @@ def __make_point(row):
     return Point(row.longitude_start, row.latitude_start)
 
 
-def __get_time_data(df):
+def __get_time_delta(df):
     # get the trip data for different times of a day
     fife_nine = df.loc[(df.hour < 10) & (df.hour > 5)]
     ten_three = df.loc[(df.hour < 16) & (df.hour > 9)]

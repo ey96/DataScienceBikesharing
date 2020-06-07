@@ -44,8 +44,7 @@ Options:
                     You can set '--nw' if you don't want information about the weather included in the transformation
   --name, --n TEXT  You can specify a unique name for the transformed file
                     e.g. 'transformed_data.csv'
-                    If you don't specify a unique
-                    name, we name this file 'dortmund_transformation.csv'
+                    If you don't specify a unique name, we name this file 'dortmund_transformation.csv'
   --help            Show this message and exit.
 ```
 
