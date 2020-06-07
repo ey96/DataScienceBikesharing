@@ -23,7 +23,7 @@ def __get_tripLabel(row):
     if ((row['towardsUniversity'] == 1) & (row['awayFromUniversity'] == 0)):
         return 'towardsUniversity'
     if ((row['towardsUniversity'] == 0) & (row['awayFromUniversity'] == 1)):
-        return 'awayFromUniveristy'
+        return 'awayFromUniversity'
     if ((row['towardsUniversity'] == 1) & (row['awayFromUniversity'] == 1)):
         return 'towardsUniversity'
     if ((row['towardsUniversity'] == 0) & (row['awayFromUniversity'] == 0)):
