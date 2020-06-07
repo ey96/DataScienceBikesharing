@@ -15,15 +15,6 @@ foo@bar:~ss_20_pds$ pip3 install .
 foo@bar:~ss_20_pds$ pip3 install -e .
 ```
 
-CLI in the sub-direcotiry of the project
-
-```console
-foo@bar:~ss_20_pds/notebooks$ pip3 install -e .
-```
-
-```console
-foo@bar:~ss_20_pds$ pip3 install -e .
-```
 
 #### Transformation 
 
@@ -48,11 +39,17 @@ Options:
   --help            Show this message and exit.
 ```
 
-##### 2. Commands
+##### 2. Example
 ```console
 foo@bar:~ss_20_pds$ nextbike transform data/internal/dortmund.csv
 ```
 
 ```console
 foo@bar:~ss_20_pds$ nextbike transform data/internal/dortmund.csv --nw --name no_weather_example_name.csv
+```
+
+#### Train
+
+```console
+foo@bar:~ss_20_pds$ nextbike train data/internal/dortmund.csv
 ```
