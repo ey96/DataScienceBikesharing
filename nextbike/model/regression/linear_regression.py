@@ -23,7 +23,6 @@ def __init__(df):
     scaler = StandardScaler()
     scaler.fit(X_train)
     X_train_scaled = scaler.transform(X_train)
-
     scaler.fit(X_test)
     X_test_scaled = scaler.transform(X_test)
 

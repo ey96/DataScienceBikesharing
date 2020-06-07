@@ -1,10 +1,12 @@
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_absolute_error,mean_squared_error, r2_score
-from sklearn.model_selection import GridSearchCV,train_test_split
-from sklearn.preprocessing import PolynomialFeatures,StandardScaler
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from sklearn.linear_model import Ridge
+from sklearn.model_selection import train_test_split, RandomizedSearchCV
+from sklearn.preprocessing import PolynomialFeatures
 
 import time
 import numpy as np
+
+from nextbike.model.regression.parameters import random_grid_poly
 
 # arrays for results
 name, poly_degree, r2, rmse, mae, exetime, desc = [], [], [], [], [], [], []
@@ -71,3 +73,13 @@ def __get_result(init, y_pred, y_pred_train):
     print("MAE: {}".format(mean_absolute_error(init['y_test'],y_pred)))
 
 
+def calculate_hyper_parameters(init):
+    poly_reg = PolynomialFeatures(degree=4)
+    x_poly = poly_reg.fit_transform(init['X_train'])
+
+    ridge_random = RandomizedSearchCV(estimator=Ridge(), param_distributions=random_grid_poly, n_iter=100,
+                                      cv=3, verbose=2, random_state=42, n_jobs=-1)
+    # Fit the model
+    ridge_random.fit(x_poly, init['y_train'])
+    # print results
+    print(ridge_random.best_params_)

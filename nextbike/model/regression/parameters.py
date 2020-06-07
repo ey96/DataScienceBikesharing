@@ -36,8 +36,18 @@ random_grid = {'kernel': kernel,
                'C': C,
                'epsilon': epsilon,
                'gamma': gamma,
-               "degree":degree,
-               "verbose":verbose,
-               "max_iter":max_iter
+               "degree": degree,
+               "verbose": verbose,
+               "max_iter": max_iter
 }
+
+ridge = Ridge()
+alpha = [1, 2, 3, 4, 5, 8, 10, 15, 20, 30, 50]
+copy = [True, False]
+fit_intercept = [True, False]
+max_iter = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+solver = ['auto', 'svd', 'cholesky', 'lsqr', 'sparse_cg', 'sag', 'saga']
+
+random_grid_poly = {'alpha': alpha, 'copy_X': copy, 'fit_intercept': fit_intercept, 'max_iter': max_iter,
+                    'solver': solver}
 
