@@ -1,8 +1,10 @@
 # these are currently the coordinates of TU Dortmund Hörsaalgebäude 2
 from vincenty import vincenty
 from shapely.geometry import Point
+from sklearn.metrics import mean_squared_error,r2_score,mean_absolute_error
 
 import geopandas as gpd
+import numpy as np
 import warnings
 
 
@@ -87,4 +89,16 @@ def __get_trip_label(row):
 
 def make_point(row):
     return Point(row.longitude_start, row.latitude_start)
+
+
+def __get_result(y_test, y_pred, y_train, y_pred_train):
+    print("w/o cross-validaiton:")
+    print("R2-Score is: {}".format(r2_score(y_train,y_pred_train)))
+    print("RMSE: {}".format(np.sqrt(mean_squared_error(y_train,y_pred_train))))
+    print("MAE: {}".format(mean_absolute_error(y_train,y_pred_train)))
+    print("")
+    print("w/ cross-validation")
+    print("R2-Score is: {}".format(r2_score(y_test,y_pred)))
+    print("RMSE: {}".format(np.sqrt(mean_squared_error(y_test,y_pred))))
+    print("MAE: {}".format(mean_absolute_error(y_test,y_pred)))
 

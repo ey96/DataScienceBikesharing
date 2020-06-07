@@ -6,6 +6,7 @@ from sklearn.preprocessing import PolynomialFeatures,StandardScaler
 import time
 import numpy as np
 
+from nextbike.model.utils import __get_result
 # arrays for results
 name, poly_degree, r2, rmse, mae, exetime, desc = [], [], [], [], [], [], []
 
@@ -39,7 +40,7 @@ def polynomial_reg(modelname, estimator, degree, init):
     y_pred_train = model.predict(x_poly)
     end = time.time()
 
-    __get_results(init['y_train'], init['y_test'], y_pred_train, y_pred)
+    __get_result(init['y_train'], init['y_test'], y_pred_train, y_pred)
 
     name.append(modelname)
     r2.append(r2_score(init['y_test'], y_pred))
@@ -49,14 +50,3 @@ def polynomial_reg(modelname, estimator, degree, init):
     desc.append(estimator)
     poly_degree.append(degree)
 
-
-def __get_results(y_train, y_test, y_pred_train, y_pred):
-    print("w/o cross-validation:")
-    print("R^2-Score is: {}".format(r2_score(y_train, y_pred_train)))
-    print("RMSE: {}".format(np.sqrt(mean_squared_error(y_train, y_pred_train))))
-    print("MAE: {}".format(mean_absolute_error(y_train, y_pred_train)))
-    print("")
-    print("w/ cross-validation:")
-    print('The R^2 is: ', r2_score(y_test, y_pred))
-    print("RMSE: {}".format(np.sqrt(mean_squared_error(y_test, y_pred))))
-    print("MAE: {}".format(mean_absolute_error(y_test, y_pred)))

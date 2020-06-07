@@ -88,7 +88,7 @@ def optimize_hyper_parameters_random_forest(X, y):
     print(rfc_random.best_params_)
 
 
-def _get_results(model,X_train_scaled,pred_train,X_test_scaled, pred, init):
+def _get_results(model, X_train_scaled,pred_train,X_test_scaled, pred, init):
     print("w/o cross-validation:")
     print("R^2-Score is: {}".format(model.score(X_train_scaled, init['y_train'])))
     print("RMSE: {}".format(np.sqrt(mean_squared_error(init['y_train'], pred_train))))
