@@ -84,55 +84,22 @@ def rfr(init, estimator=RandomForestRegressor()):
 def train(init):
     start = time.time()  # to measure execution time
 
+    print('init training parameters')
     # fitting a random forrest regressor
     rfr = RandomForestRegressor(max_features="auto", n_estimators=1155, max_depth=70, min_samples_split=10,
                                 min_samples_leaf=8, bootstrap=True)
-    print('init training parameters')
+
     rfr.fit(init['X_train_scaled'], init['y_train'])
+    print('Training done')
+
     pred = rfr.predict(init['X_test_scaled'])
     pred_train = rfr.predict(init['X_train_scaled'])
-    print('Training done')
 
     _get_results(rfr, init['X_train_scaled'], pred_train, init['X_test_scaled'], pred, init)
     end = time.time()
     execution_time = (end - start) / 60
 
     print('execution time:', execution_time)
-
-
-def optimize_hyper_parameters_random_forest(X, y):
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
-
-    # random forest model creation
-    rfc = RandomForestClassifier()
-    # Number of trees in random forest
-    n_estimators = [int(x) for x in np.linspace(start=200, stop=2000, num=10)]
-    # Number of features to consider at every split
-    max_features = ['auto', 'sqrt']
-    # Maximum number of levels in tree
-    max_depth = [int(x) for x in np.linspace(10, 110, num=11)]
-    max_depth.append(None)
-    # Minimum number of samples required to split a node
-    min_samples_split = [2, 5, 10]
-    # Minimum number of samples required at each leaf node
-    min_samples_leaf = [1, 2, 4]
-    # Method of selecting samples for training each tree
-    bootstrap = [True, False]
-    # Create the random grid
-    random_grid = {'n_estimators': n_estimators,
-                   'max_features': max_features,
-                   'max_depth': max_depth,
-                   'min_samples_split': min_samples_split,
-                   'min_samples_leaf': min_samples_leaf,
-                   'bootstrap': bootstrap}
-
-    # Random search of parameters
-    rfc_random = RandomizedSearchCV(estimator=rfc, param_distributions=random_grid, n_iter=100, cv=3, verbose=2,
-                                    random_state=42, n_jobs=-1)
-    # Fit the model
-    rfc_random.fit(X_train, y_train)
-    # print results
-    print(rfc_random.best_params_)
 
 
 def _get_results(model, X_train_scaled,pred_train,X_test_scaled, pred, init):
@@ -170,3 +137,39 @@ def convert_log_to_exp(init, rfr):
     exetime.append(0)
     desc.append("using log of trip duration/ exp after prediction")
 
+
+'''
+def optimize_hyper_parameters_random_forest(X, y):
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+
+    # random forest model creation
+    rfc = RandomForestClassifier()
+    # Number of trees in random forest
+    n_estimators = [int(x) for x in np.linspace(start=200, stop=2000, num=10)]
+    # Number of features to consider at every split
+    max_features = ['auto', 'sqrt']
+    # Maximum number of levels in tree
+    max_depth = [int(x) for x in np.linspace(10, 110, num=11)]
+    max_depth.append(None)
+    # Minimum number of samples required to split a node
+    min_samples_split = [2, 5, 10]
+    # Minimum number of samples required at each leaf node
+    min_samples_leaf = [1, 2, 4]
+    # Method of selecting samples for training each tree
+    bootstrap = [True, False]
+    # Create the random grid
+    random_grid = {'n_estimators': n_estimators,
+                   'max_features': max_features,
+                   'max_depth': max_depth,
+                   'min_samples_split': min_samples_split,
+                   'min_samples_leaf': min_samples_leaf,
+                   'bootstrap': bootstrap}
+
+    # Random search of parameters
+    rfc_random = RandomizedSearchCV(estimator=rfc, param_distributions=random_grid, n_iter=100, cv=3, verbose=2,
+                                    random_state=42, n_jobs=-1)
+    # Fit the model
+    rfc_random.fit(X_train, y_train)
+    # print results
+    print(rfc_random.best_params_)
+'''
