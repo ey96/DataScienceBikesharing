@@ -1,6 +1,9 @@
-import os
 from nextbike.constants import *
 from nextbike.constants import __FILE__
+
+import os
+import pickle
+
 
 
 def write_trip_data(df):
@@ -26,3 +29,26 @@ def __save_trip_data(df, output):
         df.to_csv(os.path.join(CONSTANTS.PATH_OUTPUT.value))
     else:
         df.to_csv(os.path.join(CONSTANTS.PATH_OUTPUT.value, output))
+
+
+def save_model(model, name):
+    """
+
+    :param model:
+    :param name:
+    :return:
+    """
+    pickle.dump(model, open(os.path.join(HEAD, os.path.join(__FILE__, CONSTANTS.PATH_OUTPUT.value + name)), 'wb'))
+
+
+def save_prediction(df, name):
+    """
+
+    :param df:
+    :param name:
+    :return:
+    """
+    df.to_csv(os.path.join(HEAD, os.path.join(__FILE__, CONSTANTS.PATH_OUTPUT.value + name)), index=False)
+
+
+

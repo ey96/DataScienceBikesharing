@@ -11,5 +11,5 @@ def cli():
 
 
 #cli.add_command(predict)
-#cli.add_command(train)
+cli.add_command(train)
 cli.add_command(transform)

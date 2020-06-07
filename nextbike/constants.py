@@ -12,7 +12,7 @@ class CONSTANTS(Enum):
     PATH_RAW = 'data/internal/'
     PATH_EXTERNAL = 'data/external/'
     PATH_PROCESSED = 'data/processed/'
-    PATH_OUTPUT = 'data/output'
+    PATH_OUTPUT = 'data/output/'
 
     # map
     CENTER_OF_DORTMUND = [51.511838, 7.456943]
