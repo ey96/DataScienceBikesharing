@@ -3,8 +3,8 @@ from pathlib import Path
 from enum import Enum
 
 
-__FILE__ = path = Path(pathlib.Path().absolute()).parent
 HEAD = 'ss_20_pds/'
+__FILE__ = path = Path(pathlib.Path().absolute()).parent
 
 
 class CONSTANTS(Enum):

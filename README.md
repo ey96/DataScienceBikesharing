@@ -39,18 +39,21 @@ foo@bar:~ss_20_pds$ nextbike transform --help
   find the new file under this location 'data/output/
 
 Options:
-  --output TEXT  You can specify a unique name for the transformed file e.g.
-                 'transformed_data.csv'
-                 If you don't specify a unique name, we
-                 name this file 'dortmund_transformation.csv'
-  --help         Show this message and exit.
+  --w / --nw        You can specify if the transformed file should contain weather information or not.
+                    Weather-information is included (default).
+                    You can set '--nw' if you don't want information about the weather included in the transformation
+  --name, --n TEXT  You can specify a unique name for the transformed file
+                    e.g. 'transformed_data.csv'
+                    If you don't specify a unique
+                    name, we name this file 'dortmund_transformation.csv'
+  --help            Show this message and exit.
 ```
 
-##### 2. help
+##### 2. Commands
 ```console
 foo@bar:~ss_20_pds$ nextbike transform data/internal/dortmund.csv
 ```
 
 ```console
-foo@bar:~ss_20_pds$ nextbike transform data/internal/dortmund.csv --output example_name.csv
+foo@bar:~ss_20_pds$ nextbike transform data/internal/dortmund.csv --nw --name no_weather_example_name.csv
 ```

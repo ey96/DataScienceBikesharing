@@ -5,13 +5,14 @@ from nextbike.constants import __FILE__
 
 def write_trip_data(df):
     """
-    saves the final dataframe in a new csv file at /processed.
+    saves the final dataframe in a new csv file at the following location: 'data/processed/dortmund_trips.csv'
      :parameter
         df: the dataframe to be saved as csv
     """
     path = os.path.join(__FILE__, CONSTANTS.PATH_PROCESSED.value + "dortmund_trips.csv")
     df.to_csv(path)
-    print("Transformed trip data for Dortmund successfully saved in a csv file!")
+    print("Transformed trip data for Dortmund successfully saved in a csv file! ")
+    print("PATH is " + path)
 
 
 def __save_trip_data(df, output):
