@@ -1,5 +1,6 @@
 import click
 from halo import Halo
+from datetime import datetime
 
 from nextbike.preprocessing.Preprocessing import get_trip_data
 from nextbike.io.output import __save_trip_data
@@ -36,7 +37,7 @@ def transform(path, name, w):
     spinner.start()
 
     path = HEAD + path
-    spinner.succeed('1/3 data was load successfully from' + path)
+    spinner.succeed('['+datetime.now().strftime('%H:%M:%S')+']'+' '+'1/3 data was load successfully from ' + path)
 
     spinner.warn('transform-data...this step can take a couple of minutes')
     if w:
@@ -45,9 +46,9 @@ def transform(path, name, w):
     else:
         df = get_trip_data(path)
 
-    spinner.succeed('2/3 data has been transformed')
+    spinner.succeed('['+datetime.now().strftime('%H:%M:%S')+']'+' '+'2/3 data has been transformed')
 
     __save_trip_data(df, name)
-    spinner.succeed('3/3 data successfully saved to data/output/' + name)
+    spinner.succeed('['+datetime.now().strftime('%H:%M:%S')+']'+' '+'3/3 data successfully saved to data/output/ ' + name)
 
     spinner.stop()
