@@ -35,14 +35,14 @@ def transform(path, name, w):
     """
     spinner.start()
     path = HEAD + path
-    spinner.succeed('data was load successfully')
+    spinner.succeed('1/3 data was load successfully')
     spinner.warn('transform-data...this step can take a couple of minutes')
     if w:
         df = get_trip_data(path, with_weather=True, head=True)
         spinner.info('Information about the weather is included in the transformation')
     else:
         df = get_trip_data(path)
-    spinner.succeed('Dataframe has been transformed')
+    spinner.succeed('2/3 data has been transformed')
     __save_trip_data(df, name)
-    spinner.succeed('Dataframe saved to data/output/' + name)
+    spinner.succeed('3/3 data successfully saved to data/output/' + name)
     spinner.stop()
