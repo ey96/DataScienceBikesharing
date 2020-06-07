@@ -21,11 +21,11 @@ def __init__(df):
 
     # scaling the data
     scaler = StandardScaler()
-    scaler.fit('X_train')
-    X_train_scaled = scaler.transform('X_train')
+    scaler.fit(X_train)
+    X_train_scaled = scaler.transform(X_train)
 
-    scaler.fit('X_test')
-    X_test_scaled = scaler.transform('X_test')
+    scaler.fit(X_test)
+    X_test_scaled = scaler.transform(X_test)
 
     return {
         'X_train': X_train,
@@ -37,7 +37,7 @@ def __init__(df):
     }
 
 
-def regression_model(model, init):
+def train(model, init):
     # fit simple regression model w/o tuning
 
     if model not in ['Lasso', 'Linear', 'Ridge']:
@@ -51,6 +51,17 @@ def regression_model(model, init):
         mod = Ridge(fit_intercept=True)
 
     mod.fit(init['X_train_scaled'], init['y_train'])
+
+    predict(mod, init)
+
+
+def predict(mod, init):
+    """
+
+    :param mod:
+    :param init:
+    :return:
+    """
 
     y_pred = mod.predict(init['X_test_scaled'])
     y_pred_train = mod.predict(init['X_train_scaled'])
@@ -111,3 +122,31 @@ def calculate_hyper_parameters(init):
 
     df_results = pd.DataFrame(scores)
     return df_results
+
+
+def model(model, alpha, max_iter, fit_intercept, random_sate, init):
+    if model not in["Ridge", "Lasso"]:
+        raise Exception('model has to be either Lasso or Ridge')
+
+    start = time.time()  # to measure the execution time
+    if model == "Ridge":
+        mod = Ridge(alpha=alpha, max_iter=max_iter, fit_intercept=fit_intercept, random_state=random_sate)
+        name = "Ridge"
+    else:
+        mod = Lasso(alpha=alpha, max_iter=max_iter, fit_intercept=fit_intercept, random_state=random_sate)
+        name = "Lasso"
+    mod.fit(init['X_train_scaled'], init['y_train'])
+    y_pred = mod.predict(init['X_test_scaled'])
+    end = time.time()  # to measure the execution time
+    return {
+        'names': name,
+        'RMSE': np.sqrt(mean_squared_error(init['y_test'], y_pred)),
+        'R2': r2_score(init['y_test'], y_pred),
+        'MAE': mean_absolute_error(init['y_test'],y_pred),
+        'exetime': (end-start),
+        'desc': 'Hyperparameters set after GridSearch'
+
+    }
+
+
+

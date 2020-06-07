@@ -7,8 +7,6 @@ import time
 import numpy as np
 
 from nextbike.model.utils import __get_result
-# arrays for results
-name, poly_degree, r2, rmse, mae, exetime, desc = [], [], [], [], [], [], []
 
 
 def __init__(df):
@@ -41,6 +39,8 @@ def polynomial_reg(modelname, estimator, degree, init):
     end = time.time()
 
     __get_result(init['y_train'], init['y_test'], y_pred_train, y_pred)
+    # arrays for results
+    name, poly_degree, r2, rmse, mae, exetime, desc = [], [], [], [], [], [], []
 
     name.append(modelname)
     r2.append(r2_score(init['y_test'], y_pred))
