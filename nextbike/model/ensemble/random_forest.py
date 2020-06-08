@@ -5,6 +5,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.ensemble import RandomForestRegressor
 
+from nextbike.io.output import save_model
 import numpy as np
 import time
 
@@ -89,8 +90,12 @@ def train(init):
     rfr = RandomForestRegressor(max_features="auto", n_estimators=1155, max_depth=70, min_samples_split=10,
                                 min_samples_leaf=8, bootstrap=True)
 
+    print('training started')
     rfr.fit(init['X_train_scaled'], init['y_train'])
-    print('Training done')
+    print('training done')
+
+    save_model(rfr, 'duration_model')
+    print('model saved under data/output/duration_model.pkl')
 
     pred = rfr.predict(init['X_test_scaled'])
     pred_train = rfr.predict(init['X_train_scaled'])
@@ -173,3 +178,8 @@ def optimize_hyper_parameters_random_forest(X, y):
     # print results
     print(rfc_random.best_params_)
 '''
+
+
+def test(name):
+    __test = RandomForestClassifier()
+    save_model(__test, name)

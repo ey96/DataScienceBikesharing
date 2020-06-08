@@ -149,6 +149,9 @@ def get_trip_data(path=None, with_weather=False, head=False):
     warnings.filterwarnings('ignore')
 
     df = input.read_file(path, index_col=0)
+    print('read the data successfully')
+
+    print('starting to create trips...')
     df = df[((df["trip"] == "start") | (df["trip"] == "end"))]
 
     deletion_filter = df["trip"] != df["trip"].shift(-1)
@@ -196,6 +199,8 @@ def get_trip_data(path=None, with_weather=False, head=False):
     # converting objects to datetimes
     df_final["datetime_start"] = pd.to_datetime(df_final["datetime_start"])
     df_final["datetime_end"] = pd.to_datetime(df_final["datetime_end"])
+
+    print('trips created...')
 
     if with_weather:
         if head:

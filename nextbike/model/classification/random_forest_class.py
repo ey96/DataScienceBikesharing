@@ -7,6 +7,8 @@ from sklearn.model_selection import train_test_split, RandomizedSearchCV, cross_
 import numpy as np
 import time
 
+from nextbike.io import save_model
+
 algorithm, precision, recall, f1score, support, exetime, desc = [], [], [], [], [], [], []
 dic = {
     'algorithm': algorithm,
@@ -46,9 +48,18 @@ def __init__(df):
 
 
 def train(init):
+
+    print('init training parameters')
     mod = RandomForestClassifier(n_estimators=1000, min_samples_split=2, min_samples_leaf=1, max_depth=10,
                                  max_features='auto', bootstrap=False)
+
+    print('training started')
     mod.fit(init['X_train'], init['y_train'])
+    print('training done')
+
+    save_model(mod, 'destination_model')
+    print('model saved under data/output/destination_model.pkl')
+
     y_pred = mod.predict(init['X_test'])
 
     rfc_cv_score = cross_val_score(mod, init['X'], init['y'], cv=10)

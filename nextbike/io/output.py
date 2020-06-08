@@ -5,7 +5,6 @@ import os
 import pickle
 
 
-
 def write_trip_data(df):
     """
     saves the final dataframe in a new csv file at the following location: 'data/processed/dortmund_trips.csv'
@@ -38,7 +37,10 @@ def save_model(model, name):
     :param name:
     :return:
     """
-    pickle.dump(model, open(os.path.join(HEAD, os.path.join(__FILE__, CONSTANTS.PATH_OUTPUT.value + name)), 'wb'))
+    d = Path(__file__).resolve().parents[2]
+    # pickle.dump(model, open(os.path.join(d, CONSTANTS.PATH_OUTPUT.value + "test.p")), 'wb')
+    with open(os.path.join(d, CONSTANTS.PATH_OUTPUT.value + name + ".pkl"), 'wb') as handle:
+        pickle.dump(model, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
 def save_prediction(df, name):

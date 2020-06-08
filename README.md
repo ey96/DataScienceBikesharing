@@ -100,12 +100,12 @@ Options:
  
  ##### 2. Example
 ```console
-foo@bar:~ss_20_pds$ nextbike train data/internal/dortmund.csv --both
+foo@bar:~ss_20_pds$ nextbike train data/internal/dortmund.csv both
 ```
 
 ```console
-foo@bar:~ss_20_pds$ nextbike train data/internal/dortmund.csv --duration
+foo@bar:~ss_20_pds$ nextbike train data/internal/dortmund.csv duration
 ```
 ```console
-foo@bar:~ss_20_pds$ nextbike train data/internal/dortmund.csv --destination
+foo@bar:~ss_20_pds$ nextbike train data/internal/dortmund.csv destination
 ```
