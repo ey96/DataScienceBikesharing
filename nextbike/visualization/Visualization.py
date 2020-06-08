@@ -263,7 +263,8 @@ def show_trips(df, amount, random=True):
     i = 0
     for index, row in df.iterrows():
         if i <= amount:
-            folium.ColorLine([[row["latitude_start"],row["longitude_start"]],[row["latitude_end"],row["longitude_end"]]],
+            folium.ColorLine([[row["latitude_start"], row["longitude_start"]],
+                              [row["latitude_end"], row["longitude_end"]]],
                              colors=[0, 1, 2],
                              colormap=["blue", "green"],
                              weight=1,
@@ -301,16 +302,17 @@ def show_map_at_specific_day(df, date="2019-01-20", street="Signal Iduna Park", 
 
     df_tmp = df[(df['datetime_start'] >= date + " 00:00:00") & (df['datetime_start'] <= date + " 23:59:59")]
 
-    tmp_map.add_child(plugins.HeatMap(df_tmp["coordinates_start"], radius=20))
-    tmp_map.add_child(plugins.HeatMap(df_tmp["coordinates_end"], radius=20))
+    tmp_map.add_child(plugins.HeatMap(df[["latitude_start", "longitude_start"]], radius=20))
+    tmp_map.add_child(plugins.HeatMap(df[["latitude_start", "longitude_start"]], radius=20))
 
     for index, row in df_tmp.iterrows():
-        folium.ColorLine([row["coordinates_start"], row["coordinates_end"]],
+        folium.ColorLine([[row["latitude_start"], row["longitude_start"]], [row["latitude_end"], row["longitude_end"]]],
                          colors=[0, 1, 2],
-                         colormap=["red", "blue"],
+                         colormap=["blue", "red"],
                          weight=1,
                          opacity=0.5).add_to(tmp_map)
-    tmp_map.save('../doc/interactive_maps/show_map_at_specific_day.html')
+
+    tmp_map.save('../doc/interactive_maps/show_map_at_'+str(street)+'_specific_day_' + str(date)+'.html')
     return tmp_map
 
 
