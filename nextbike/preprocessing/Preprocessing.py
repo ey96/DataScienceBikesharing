@@ -149,6 +149,7 @@ def get_trip_data(path=None, with_weather=False, head=False):
     warnings.filterwarnings('ignore')
 
     df = input.read_file(path, index_col=0)
+
     df = df[((df["trip"] == "start") | (df["trip"] == "end"))]
 
     deletion_filter = df["trip"] != df["trip"].shift(-1)

@@ -17,6 +17,8 @@ HELP_NAME = '''
 You can specify a unique name for the transformed file e.g. 'transformed_data.csv'
 If you don't specify a unique name, we name this file 'dortmund_transformation.csv'
 '''
+
+# define the spinner
 spinner = Halo(text='Loading', spinner='dots')
 
 
@@ -34,13 +36,20 @@ def transform(path, name, w):
     You can find the new file under this location 'data/output/
 
     """
+
+    # start the spinner
     spinner.start()
 
+    # adjust the path, since CLI is rooted from the root (i.e., ss_20_pds) and not from a sub-dir
     path = HEAD + path
     spinner.succeed('['+datetime.now().strftime('%H:%M:%S')+']'+' '+'1/3 data was load successfully from ' + path)
 
+    # since the transformation step can take a couple if minutes, we want to give some visual feedback to the user
     spinner.warn('transform-data...this step can take a couple of minutes')
+
+    # if the flag '--w' is active, we include weather-information in the transformation step
     if w:
+        # we introduced a new parameter 'head' to deal with the needed resource of the CLI
         df = get_trip_data(path, with_weather=True, head=True)
         spinner.info('Information about the weather is included in the transformation')
     else:
@@ -48,7 +57,9 @@ def transform(path, name, w):
 
     spinner.succeed('['+datetime.now().strftime('%H:%M:%S')+']'+' '+'2/3 data has been transformed')
 
+    # calls a private method, which saves the transformed file and give it a name
     __save_trip_data(df, name)
     spinner.succeed('['+datetime.now().strftime('%H:%M:%S')+']'+' '+'3/3 data successfully saved to data/output/ ' + name)
 
+    # stop the spinner, since we are done
     spinner.stop()

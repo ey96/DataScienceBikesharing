@@ -1,7 +1,28 @@
 ![CI](https://github.com/t00m-dev/ss_20_pds/workflows/CI/badge.svg?branch=master)
 # ss_20_pds
 This repository contains all materials that were developed in the team for the lecture "Programming Data Science" at the University of Cologne.
+## project structure 
 
+    .
+    ├── .github                   # contains internal setting e.g. PR/Issue -template, workflows    
+    ├── data                      
+    │   ├── external              # contains external data like weather, geojson etc.
+    │   ├── internal              # contains the raw training and test-data
+    │   ├── output                # contains the output from the CLI-commands (e.g., .pkl-files, transformed csv-files)
+    │   └── processed             # contains proccessed csv-files 
+    ├── doc                       
+    │   ├── figures               # stores all the figures, which are gernerated through the analysis
+    │   ├── Timeline_PDS2020.docx # our timeline
+    │   └── report.pdf            # our group-report
+    ├── nextbike                  # our python-project (i.e., src)
+    ├── notebooks                                         
+    │   ├── archiv                                      # contains all the 'plain'- notebooks 
+    │   ├── Task 1 - Exploration and Description.ipynb      
+    │   ├── Task 2 - Visualization.ipynb                
+    │   └── Task 3 - Prediction.ipynb                   
+    ├── README.md
+    └── setup.py
+    
 ## Command Line Interface (CLI)
 
 #### 1. How to install the project? 
@@ -50,6 +71,41 @@ foo@bar:~ss_20_pds$ nextbike transform data/internal/dortmund.csv --nw --name no
 
 #### Train
 
+##### 1. Help
+
 ```console
-foo@bar:~ss_20_pds$ nextbike train data/internal/dortmund.csv
+foo@bar:~ss_20_pds$ nextbike train --help
+
+Usage: nextbike train [OPTIONS] PATH [duration|destination|both]
+
+  Call this command if you want to train your model. After the 'training'
+  the trained model is saved under 'data/output/'
+
+  This command takes the path to the csv-file as an argument, as well as an
+  argument 'model-type' The 'model-type' argument can be 'duration',
+  'destination' or 'both'. With this argument you can specify which kind of
+  model you want to train.
+
+  Due our limited computational power, we decide to introduce the flag,
+  since the training of both-model take a couple of minutes
+
+  ### FURTHER INFORMATION ### According to the project-description the
+  'duration-' model represents Task 3a and the 'destination-' model
+  represents Task 3b
+  
+
+Options:
+  --help  Show this message and exit.
+ ```
+ 
+ ##### 2. Example
+```console
+foo@bar:~ss_20_pds$ nextbike train data/internal/dortmund.csv both
+```
+
+```console
+foo@bar:~ss_20_pds$ nextbike train data/internal/dortmund.csv duration
+```
+```console
+foo@bar:~ss_20_pds$ nextbike train data/internal/dortmund.csv destination
 ```
