@@ -1,9 +1,11 @@
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.metrics import precision_recall_fscore_support as score
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split, RandomizedSearchCV, cross_val_score
 
 import numpy as np
+import time
 
 algorithm, precision, recall, f1score, support, exetime, desc = [], [], [], [], [], [], []
 dic = {
@@ -52,9 +54,72 @@ def train(init):
     rfc_cv_score = cross_val_score(mod, init['X'], init['y'], cv=10)
     __get_result(rfc_cv_score, init['y_test'], y_pred)
 
+    print('10 fold cross validation' + np.mean(cross_val_score(mod, init['X_train'], init['y_train'], cv=10)))
 
-def optimize_hyper_parameters_random_forest(X, y):
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+
+def explore(typ, init, df):
+
+    if typ not in ['away', 'towards']:
+        raise Exception('typ has to be either away or towards')
+    if typ == 'away':
+        y_away = df['awayFromUniversity']
+        X_train, X_test, y_away_train, y_away_test = train_test_split(init['X'], y_away, test_size=0.3)
+
+        start = time.time()
+        mod = RandomForestClassifier()
+        mod.fit(X_train, y_away_train)
+        y_pred = mod.predict(X_test)
+        end = time.time()
+        rfc_cv_score = cross_val_score(mod, init['X'], y_away, cv=10)
+
+        __get_result(rfc_cv_score=rfc_cv_score, y_test=y_away_test, y_pred=y_pred)
+
+        algorithm.append("Random Forrest")
+        exetime.append((end - start))
+        desc.append("Predicts awayFromUniversity (complement)")
+    else:
+        y_towards = df['towardsUniversity']
+        X_train, X_test, y_towards_train, y_towards_test = train_test_split(init['X'], y_towards, test_size=0.3)
+
+        start = time.time()
+        mod = RandomForestClassifier()
+        mod.fit(X_train, y_towards_train)
+        y_pred = mod.predict(X_test)
+        end = time.time()
+
+        rfc_cv_score = cross_val_score(mod, init['X'], y_towards, cv=10)
+
+        __get_result(rfc_cv_score=rfc_cv_score, y_test=y_towards_test, y_pred=y_pred)
+
+        algorithm.append("Random Forrest")
+        exetime.append((end - start))
+        desc.append("Predicts towardsUniversity (complement)")
+
+
+def predict_trip_label(init, mod=RandomForestClassifier()):
+    start = time.time()
+    mod = mod
+    mod.fit(init['X_train'], init['y_train'])
+    y_pred = mod.predict(init['X_test'])
+    end = time.time()
+
+    rfc_cv_score = cross_val_score(mod, init['X'], init['y'], cv=10)
+
+    __get_result(rfc_cv_score=rfc_cv_score, y_test=init['y_test'], y_pred=y_pred)
+    algorithm.append("Random Forrest")
+    exetime.append((end-start))
+    if mod.n_estimators == 1000:
+        desc.append("Optimized hyperparameters of model in index 0")
+    elif mod.n_estimators == 400:
+        desc.append("Optimized hyperparameters of model in index 2")
+    elif mod.n_estimators == 200:
+        desc.append("Optimized hyperparameters of model in index 4")
+    else:
+        desc.append("Predicts tripLabel")
+
+
+def optimize_hyper_parameters_random_forest(init):
+    X_train, X_test, y_train, y_test = train_test_split(init['X'], init['y'], test_size=0.3)
 
     # random forest model creation
     rfc = RandomForestClassifier()
@@ -89,6 +154,13 @@ def optimize_hyper_parameters_random_forest(X, y):
 
 
 def __get_result(rfc_cv_score, y_test, y_pred):
+    pre, re, f_score, sup = score(y_test, y_pred, average='weighted')
+
+    precision.append(pre)
+    recall.append(re)
+    f1score.append(f_score)
+    support.append(sup)
+
     print("=== Confusion Matrix ===")
     print(confusion_matrix(y_test, y_pred))
     print('\n')
@@ -101,4 +173,6 @@ def __get_result(rfc_cv_score, y_test, y_pred):
     print('\n')
     print("=== Mean AUC Score ===")
     print("Mean AUC Score - Random Forest: ", rfc_cv_score.mean())
+
+
 
