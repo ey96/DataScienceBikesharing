@@ -32,8 +32,9 @@ except ImportError as e:
 
 
 # ab task c
-def create_map(shape="dortmund_plz.geojson", center=CONSTANTS.CENTER_OF_DORTMUND.value, tiles=CONSTANTS.TILES.value,
-               attr=CONSTANTS.ATTR.value, zoom_start=12, min_zoom=11, height="100%", width="100%"):
+def create_map(shape="dortmund_plz.geojson", center=CONSTANTS.CENTER_OF_DORTMUND.value, #tiles=CONSTANTS.TILES.value,
+               #attr=CONSTANTS.ATTR.value,
+               zoom_start=12, min_zoom=11, height="100%", width="100%"):
     """
     Creats a Folium-Map with dortmund as a shape.
 
@@ -48,15 +49,19 @@ def create_map(shape="dortmund_plz.geojson", center=CONSTANTS.CENTER_OF_DORTMUND
     :return: a Folium-map with the your either your preferences or the default settings
     """
     map = folium.Map(
-        attr=attr,
+        #attr=attr,
         location=center,
-        tiles=tiles,
+        #tiles=tiles,
         zoom_start=zoom_start,
         min_zoom=min_zoom,
         height=height,
         width=width
     )
-    folium.GeoJson(input.__read_geojson(shape), name='geojson').add_to(map)
+    folium.GeoJson(
+        input.__read_geojson(shape),
+        name='geojson',
+        style_function=lambda feature: {"color": "black", "weight": 1, },
+        highlight_function=lambda x: {"weight": 2, "color": "black", "fillOpacity": 0.5},).add_to(map)
 
     return map
 
