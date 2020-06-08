@@ -321,6 +321,56 @@ def show_map_at_specific_day(df, date="2019-01-20", street="Signal Iduna Park", 
     return tmp_map
 
 
+def show_one_moment(df, df2):
+    bikenumer_per_stations_map = create_map()
+
+    # draw the borders of Dortmund and its districts
+    folium.Choropleth(
+        geo_data=df,
+        fill_color='grey',
+        fill_opacity=0.4,
+    ).add_to(bikenumer_per_stations_map)
+
+    for index, row in df2.iterrows():
+        bikenumber = int(row['NumberOfBikes'])
+        station_name = row['p_name']
+        station_info = "Name: {}\n\nNumber of bikes: {}\n".format(station_name, bikenumber)
+
+        folium.Circle(
+            location=[row['latitude'], row['longitude']],
+            popup=station_info,
+            radius=row['NumberOfBikes'] * 20,
+            color='red',
+            fill=True,
+            fill_color='#red'
+        ).add_to(bikenumer_per_stations_map)
+
+    bikenumer_per_stations_map.save('../doc/interactive_maps/show_one_moment'+str(CONSTANTS.FILTER_FOR_ONE_MOMENT.value)+'.html')
+
+    return bikenumer_per_stations_map
+
+
+def show_one_moment_at_map(df, df2):
+    bikenumer_per_stations_map = create_map()
+
+    # draw the borders of Dortmund and its districts
+    folium.Choropleth(
+        geo_data=df,
+        fill_color='grey',
+        fill_opacity=0.4,
+    ).add_to(bikenumer_per_stations_map)
+
+    for index, row in df2.iterrows():
+        bikenumber = int(row['NumberOfBikes'])
+        station_name = row['p_name']
+        station_info = "Name: {}\n\nNumber of bikes: {}\n".format(station_name, bikenumber)
+        folium.Marker(location=[row['latitude'], row['longitude']], popup=station_info).add_to(
+            bikenumer_per_stations_map)
+
+    bikenumer_per_stations_map.save('../doc/interactive_maps/show_one_moment_at_map'+str(CONSTANTS.FILTER_FOR_ONE_MOMENT.value)+'.html')
+    return bikenumer_per_stations_map
+
+
 def replace_umlauts(station_name):
     """
     The umlauts of the name of station (or a string in general) are replaced by normal letters

@@ -19,3 +19,5 @@ class CONSTANTS(Enum):
     TILES = "cartodbpositron"
     ATTR = '© <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a ' \
            'href="http://cartodb.com/attributions#basemaps">CartoDB</a> '
+
+    FILTER_FOR_ONE_MOMENT = '2019-12-31-11'

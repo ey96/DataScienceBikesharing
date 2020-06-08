@@ -8,6 +8,9 @@ from nextbike.io import input
 from nextbike.constants import *
 from nextbike.constants import HEAD
 
+import pandas as pd
+import numpy as np
+
 
 def __is_weekend(index_of_day):
     """
@@ -303,3 +306,29 @@ def __get_month_data(df):
             trips_dec[['latitude', 'longitude', 'count']].values.tolist()]
 
     return data
+
+
+def __prep_for_visualization():
+    df_raw = input.read_file(index_col=0)
+    df_raw = df_raw[df_raw['p_number'] != 0]
+    df_raw.loc[:, 'datetime'] = pd.to_datetime(df_raw.loc[:, 'datetime'])
+
+    stationlist = df_raw['p_name'].unique()
+
+    # Create dataframe with hourly timestamps
+    station_bikenumbers = pd.DataFrame(np.arange('2019-01-20', '2019-12-31', dtype='datetime64[h]'), columns=['time'])
+
+    station_bikenumbers['time'] = station_bikenumbers['time'].dt.strftime('%Y-%m-%d-%H')
+
+    for station in stationlist:
+        station_bikenumbers[station] = np.NaN
+
+    station_bikenumbers = station_bikenumbers.set_index('time')
+
+    return {
+        'df_raw': df_raw,
+        'station_bikenumbers': station_bikenumbers
+
+    }
+
+
