@@ -88,6 +88,8 @@ def show_station_map(df):
             fill_color='#red'
         ).add_to(stations_map)
 
+        stations_map.save('../doc/interactive_maps/show_station_map.html')
+
     return stations_map
 
 
@@ -126,6 +128,7 @@ def show_rental_for_june(df):
         highlight_function=lambda x: {"weight": 2, "color": "black", "fillOpacity": 0.5},
         tooltip=folium.features.GeoJsonTooltip(fields=['count', 'plz'], aliases=['Amount of rentals:', 'Postcal code:'])
     ).add_to(districts_map)
+    districts_map.save('../doc/interactive_maps/show_rental_for_june.html')
 
     return districts_map
 
@@ -153,6 +156,7 @@ def show_time_heatmap(df, df2):
         geo_data=df2,
         fill_opacity=0.1,
         line_opacity=1, ).add_to(heatmap_daily)
+    heatmap_daily.save('../doc/interactive_maps/show_time_heatmap.html')
 
     return heatmap_daily
 
@@ -181,6 +185,8 @@ def show_heatmap_monthly_per_district(df, df2):
         fill_opacity=0.1,
         line_opacity=1, ).add_to(heatmap_monthly_per_district)
 
+    heatmap_monthly_per_district.save('../doc/interactive_maps/show_heatmap_monthly_per_district.html')
+
     return heatmap_monthly_per_district
 
 
@@ -196,10 +202,12 @@ def station_capacity(df, radius=20):
     tmp_map.add_child(plugins.HeatMap(df[["latitude_start", "longitude_start"]], radius=radius))
     tmp_map.add_child(plugins.HeatMap(df[["latitude_end", "longitude_end"]], radius=radius))
 
+    tmp_map.save('../doc/interactive_maps/station_capacity.html')
+
     return tmp_map
 
 
-def most_used_station(df, random=True, amount=1000):
+def most_used_station(df, amount, random=True):
     """
     Creates a grouping of the most-used-stations. You can either choose to picks random stations or the first "amount"
      of stations in the df
@@ -210,6 +218,10 @@ def most_used_station(df, random=True, amount=1000):
     :param amount: how much random rows should be included
     :return: Folium-Map
     """
+
+    if amount <= 0:
+        raise Exception('amount has to be > 0')
+
     tmp_map = create_map()
     mc = MarkerCluster()
     if random:
@@ -224,10 +236,13 @@ def most_used_station(df, random=True, amount=1000):
             i = i + 1
         else:
             break
+
+    tmp_map.save('../doc/interactive_maps/top_'+str(amount)+'_used_station.html')
+
     return tmp_map
 
 
-def show_trips(df, random=True, amount=500):
+def show_trips(df, amount, random=True):
     """
     Creates a Foliom-ColorLine, which shows random trips. You can either choose to picks random trips or the
     first "amount" of trips in the df
@@ -238,6 +253,9 @@ def show_trips(df, random=True, amount=500):
     :param amount: The amount of trips, you want to show (ATTENTION: needs a lot of RAM)
     :return: Folium-ColorLine Map
     """
+
+    if amount <= 0:
+        raise Exception('amount has to be > 0')
     tmp_map = create_map()
     if random:
         df = shuffle(df)
@@ -253,6 +271,8 @@ def show_trips(df, random=True, amount=500):
             i = i + 1
         else:
             break
+    tmp_map.save('../doc/interactive_maps/show_'+str(amount)+'trips.html')
+
     return tmp_map
 
 
@@ -290,7 +310,7 @@ def show_map_at_specific_day(df, date="2019-01-20", street="Signal Iduna Park", 
                          colormap=["red", "blue"],
                          weight=1,
                          opacity=0.5).add_to(tmp_map)
-
+    tmp_map.save('../doc/interactive_maps/show_map_at_specific_day.html')
     return tmp_map
 
 

@@ -3,7 +3,6 @@ from nextbike.constants import __FILE__
 
 import os
 import pickle
-from datetime import datetime
 
 
 def write_trip_data(df):
