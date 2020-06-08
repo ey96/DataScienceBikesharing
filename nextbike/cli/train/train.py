@@ -89,4 +89,4 @@ def train(path, model_type):
         spinner.succeed('[' + datetime.now().strftime('%H:%M:%S') + ']' + ' 3/3 training of destination-model done.')
         spinner.stop()
     else:
-        click.echo('this should never happen')
+        click.echo('done')
