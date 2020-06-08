@@ -21,6 +21,7 @@ spinner = Halo(text='Loading', spinner='dots')
 @click.option('model-type', type=click.Choice(['duration', 'destination', 'both'], case_sensitive=False),
               help=HELP_MODEL)
 def train(path, model):
+
     """
     DESCRIPTION HERE
     """
