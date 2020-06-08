@@ -22,6 +22,7 @@ This repository contains all materials that were developed in the team for the l
     │   └── Task 3 - Prediction.ipynb                   
     ├── README.md
     └── setup.py
+    
 ## Command Line Interface (CLI)
 
 #### 1. How to install the project? 
