@@ -8,7 +8,7 @@ This repository contains all materials that were developed in the team for the l
     ├── data                      
     │   ├── external              # contains external data like weather, geojson etc.
     │   ├── internal              # contains the raw training and test-data
-    │   ├── output                # contains the output from the CLI-commands
+    │   ├── output                # contains the output from the CLI-commands (e.g., .pkl-files, transformed csv-files)
     │   └── processed             # contains proccessed csv-files 
     ├── doc                       
     │   ├── figures               # stores all the figures, which are gernerated through the analysis
