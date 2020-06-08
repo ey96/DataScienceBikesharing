@@ -8,20 +8,6 @@ from nextbike.model.clustering import cluster
 from nextbike.preprocessing import get_trip_data
 from nextbike.model.classification import random_forest_class
 
-HELP_MODEL = """
-
-With this optional argument you can specify which kind of model you want to train.
-We distinguish between 'duration', 'destination' and 'both'
-
-Due our limited computational power, we decide to introduce the flag, 
-since the training of both-model take a couple of minutes
-
-### FURTHER INFORMATION ###
-According to the project-description the 'duration-' model represents Task 3a
-and the 'destination-' model represents Task 3b
-
-
-"""
 
 # define a spinner
 spinner = Halo(text='Loading', spinner='dots')
@@ -29,15 +15,22 @@ spinner = Halo(text='Loading', spinner='dots')
 
 @click.command()
 @click.argument('path', type=click.Path('rb'))
-@click.option('model-type', default='both', type=click.Choice(['duration', 'destination', 'both'], case_sensitive=False)
-    , help=HELP_MODEL)
-def train(path, model):
+@click.argument('model_type', type=click.Choice(['duration', 'destination', 'both'], case_sensitive=False))
+def train(path, model_type):
     """
     Call this command if you want to train your model.
     After the 'training' the trained model is saved under 'data/output/'
 
-    This command takes the path to the csv-file as an argument, as well as a optional argument 'model-type'
-    The 'model-type' argument can be 'duration', 'destination' or 'both'
+    This command takes the path to the csv-file as an argument, as well as an argument 'model-type'
+    The 'model-type' argument can be 'duration', 'destination' or 'both'.
+    With this argument you can specify which kind of model you want to train.
+
+    Due our limited computational power, we decide to introduce the flag,
+    since the training of both-model take a couple of minutes
+
+    ### FURTHER INFORMATION ###
+    According to the project-description the 'duration-' model represents Task 3a
+    and the 'destination-' model represents Task 3b
 
     """
 
@@ -52,7 +45,7 @@ def train(path, model):
     # added trip_label as an additional attribute
     df = cluster.__get_X_scaled(df)
 
-    if model == 'duration':
+    if model_type == 'duration':
         spinner.succeed('[' + datetime.now().strftime('%H:%M:%S') + ']' + '2/3 training of duration-model started')
         spinner.warn('[ATTENTION] this step can take a couple of minutes')
         # call our training model
@@ -61,8 +54,7 @@ def train(path, model):
         random_forest.train(init)
         spinner.succeed('[' + datetime.now().strftime('%H:%M:%S') + ']' + '3/3 training done. Model saved under '
                                                                           '/data/output')
-
-    if model == 'destination':
+    if model_type == 'destination':
         spinner.succeed('[' + datetime.now().strftime('%H:%M:%S') + ']' + '2/3 training of destination-model started')
         spinner.warn('[ATTENTION] this step can take a couple of minutes')
         # call out training model
@@ -73,6 +65,7 @@ def train(path, model):
                                                                           '/data/output')
     # both
     else:
+        print('hm')
         pass
 
     spinner.stop()
