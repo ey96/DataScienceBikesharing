@@ -34,7 +34,6 @@ def __init__(df):
     scaler.fit(X_test)
     X_test_scaled = scaler.transform(X_test)
 
-
     return {
         'X': X,
         'X_train': X_train,
