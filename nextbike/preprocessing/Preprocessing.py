@@ -4,11 +4,12 @@ import pandas as pd
 import warnings
 from shapely.geometry import Point
 
-from ..io import input
-from ..constants import CONSTANTS
+from nextbike.io import input
+from nextbike.constants import *
+from nextbike.constants import HEAD
 
 
-def __isWeekend(index_of_day):
+def __is_weekend(index_of_day):
     """
     :param index_of_day: Weekday in integers (e.g. Monday = 0, Sunday = 6)
     :return: 1 for Saturday (index_of_day = 5) and Sunday (index_of_day = 5), otherwise 0
@@ -19,24 +20,25 @@ def __isWeekend(index_of_day):
         return 0
 
 
-def __get_tripLabel(row):
-    if ((row['towardsUniversity'] == 1) & (row['awayFromUniversity'] == 0)):
+def __get_trip_label(row):
+    if (row['towardsUniversity'] == 1) & (row['awayFromUniversity'] == 0):
         return 'towardsUniversity'
-    if ((row['towardsUniversity'] == 0) & (row['awayFromUniversity'] == 1)):
+    if (row['towardsUniversity'] == 0) & (row['awayFromUniversity'] == 1):
         return 'awayFromUniversity'
-    if ((row['towardsUniversity'] == 1) & (row['awayFromUniversity'] == 1)):
+    if (row['towardsUniversity'] == 1) & (row['awayFromUniversity'] == 1):
         return 'towardsUniversity'
-    if ((row['towardsUniversity'] == 0) & (row['awayFromUniversity'] == 0)):
+    if (row['towardsUniversity'] == 0) & (row['awayFromUniversity'] == 0):
         return 'noUniversityRide'
 
     warnings.warn("Warning...........Message")
     return None
 
 
-def __addFeatureColumns(df_final=None, df_weather=None):
-
+def __add_feature_columns(df_final=None, df_weather=None):
     """"
-    :param df_final: Dataframe, that should be extended with new feature columns.
+    :param
+    df_final: Dataframe, that should be extended with new feature columns.
+    df_weather:
     """
 
     # adding the trip duration with the difference of start and end time
@@ -45,8 +47,8 @@ def __addFeatureColumns(df_final=None, df_weather=None):
     # converting timedelta to numeric and format in minutes
     df_final["trip_duration"] = pd.to_numeric(df_final["trip_duration"] / 60000000000)
 
-    df_final["coordinates_start"] = list(zip(df_final["latitude_start"],df_final["longitude_start"]))
-    df_final["coordinates_end"] = list(zip(df_final["latitude_end"],df_final["longitude_end"]))
+    df_final["coordinates_start"] = list(zip(df_final["latitude_start"], df_final["longitude_start"]))
+    df_final["coordinates_end"] = list(zip(df_final["latitude_end"], df_final["longitude_end"]))
 
     # adding the distance between start and end position
     df_final["distance"] = df_final.apply(
@@ -55,7 +57,7 @@ def __addFeatureColumns(df_final=None, df_weather=None):
 
     # adding another distances
     df_final["distanceToUniversity"] = df_final.apply(lambda x: vincenty([x["latitude_start"], x["longitude_start"]],
-                                                                         [51.4928736,7.415647], ), axis=1)
+                                                                         [51.4928736, 7.415647], ), axis=1)
     df_final["distanceToCentralStation"] = df_final.apply(
         lambda x: vincenty([x["latitude_start"], x["longitude_start"]],
                            [51.5175, 7.458889], ), axis=1)
@@ -64,7 +66,7 @@ def __addFeatureColumns(df_final=None, df_weather=None):
     df_final['weekday'] = df_final['datetime_start'].dt.dayofweek
 
     # adding new boolean column "weekend"
-    df_final["weekend"] = df_final["weekday"].apply(lambda x: __isWeekend(x))
+    df_final["weekend"] = df_final["weekday"].apply(lambda x: __is_weekend(x))
 
     # transform column "datatime_start" into several columns
     df_final["day"] = df_final["datetime_start"].apply(lambda x: x.day)
@@ -74,18 +76,18 @@ def __addFeatureColumns(df_final=None, df_weather=None):
     df_final["day_of_year"] = df_final["datetime_start"].apply(lambda x: x.timetuple().tm_yday)
 
     # add the attribute whether a trip was done towards/away from university
-    #array with university stations
+    # array with university stations
     university_stations = ["TU Dortmund Seminarraumgebäude 1", "TU Dortmund Hörsaalgebäude 2", "Universität/S-Bahnhof",
                            "TU Dortmund Emil-Figge-Straße 50", "FH-Dortmund Emil-Figge-Straße 42"]
 
     df_final['towardsUniversity'] = df_final['p_name_end'].apply(lambda x: 1 if x in university_stations else 0)
     df_final['awayFromUniversity'] = df_final['p_name_start'].apply(lambda x: 1 if x in university_stations else 0)
 
-    df_final['tripLabel'] = df_final.apply(lambda row: __get_tripLabel(row), axis=1)
+    df_final['tripLabel'] = df_final.apply(lambda row: __get_trip_label(row), axis=1)
 
     if df_weather is not None:
         df_final["datetime_start_for_merge_with_weather"] = df_final["datetime_start"].apply(
-             lambda x: __formatDatetimeForMerging(str(x)))
+            lambda x: __format_datetime_for_merging(str(x)))
 
         # merge with weather data
         df_final = pd.merge(df_final, df_weather, left_on="datetime_start_for_merge_with_weather", right_on="datetime",
@@ -97,22 +99,31 @@ def __addFeatureColumns(df_final=None, df_weather=None):
     return df_final
 
 
-def __formatDatetimeForMerging(x):
+def __format_datetime_for_merging(x):
     # return as integer for merging
     return int(x[:13].replace('-', '').replace(' ', ''))
 
 
-def __readWeatherFiles():
+def __process_weather_files(head=False):
     # read weather data
     # temperature for each hour in 2019
-    temp = input.__read_file(os.path.join(CONSTANTS.PATH_EXTERNAL.value, "WaltropTemp.txt"), sep=";")
+    if head:
+        temp = input.read_file(os.path.join(HEAD, os.path.join(CONSTANTS.PATH_EXTERNAL.value, "WaltropTemp.txt")),
+                               sep=";")
+    else:
+        temp = input.read_file(os.path.join(CONSTANTS.PATH_EXTERNAL.value, "WaltropTemp.txt"), sep=";")
     temp.rename(columns={"TT_TU": "temperature °C", "MESS_DATUM": "datetime"}, inplace=True)
     temp.drop(labels=["STATIONS_ID", "QN_9", "eor", "RF_TU"], axis=1, inplace=True)
     temp = temp[(temp["datetime"] >= 2019010100) & (temp["datetime"] <= 2019123123)]
     temp.reset_index(drop=True, inplace=True)
 
     # two features (precipitation in mm & precipitaion y/n) for each hour in 2019
-    precipitation = input.__read_file(os.path.join(CONSTANTS.PATH_EXTERNAL.value, "WaltropPrecipitation.txt"), sep=";")
+    if head:
+        precipitation = input.read_file(os.path.join(HEAD, os.path.join(CONSTANTS.PATH_EXTERNAL.value,
+                                                                        "WaltropPrecipitation.txt")), sep=";")
+    else:
+        precipitation = input.read_file(os.path.join(CONSTANTS.PATH_EXTERNAL.value, "WaltropPrecipitation.txt"),
+                                        sep=";")
     precipitation.rename(columns={"  R1": "precipitation in mm", "MESS_DATUM": "datetime", "RS_IND": "precipitation"},
                          inplace=True)
     precipitation = precipitation[(precipitation["datetime"] >= 2019010100) & (precipitation["datetime"] <= 2019123123)]
@@ -123,39 +134,40 @@ def __readWeatherFiles():
     return weather
 
 
-def get_trip_data(path=None, withWeather=True):
+def get_trip_data(path=None, with_weather=False, head=False):
     """
     Reads the csv file and transforms the location data of bikes into trip data.
     :parameter
         path: Directory of the csv file, that should read in.
             Default is None --> reads dortmund.csv
         withWeather: adds weather features to the final DataFrame
+        head: Is always False. Introduced only to handle resource for click
     :return:
         Final DataFrame with added features.
     """
 
     warnings.filterwarnings('ignore')
 
-    df = input.__read_file(path)
-    df =df[((df["trip"] == "start") | (df["trip"]=="end"))]
+    df = input.read_file(path, index_col=0)
+    df = df[((df["trip"] == "start") | (df["trip"] == "end"))]
 
-    deletionFilter = df["trip"] != df["trip"].shift(-1)
-    df = df[deletionFilter]
+    deletion_filter = df["trip"] != df["trip"].shift(-1)
+    df = df[deletion_filter]
 
     df_start = df[(df["trip"] == "start")]
     df_end = df[(df["trip"] == "end")]
-
 
     df_start.reset_index(inplace=True)
     df_end.reset_index(inplace=True)
 
     # rename columns for merging
     df_start.rename(columns={"index": "index_start", "datetime": "datetime_start", "p_lat": "latitude_start",
-                             "p_lng": "longitude_start", "p_name": "p_name_start", "b_number": "b_number_start", "p_number": "p_number_start"},
+                             "p_lng": "longitude_start", "p_name": "p_name_start", "b_number": "b_number_start",
+                             "p_number": "p_number_start"},
                     inplace=True)
     df_end.rename(
         columns={"index": "index_end", "datetime": "datetime_end", "p_lat": "latitude_end", "p_lng": "longitude_end",
-                 "p_name": "p_name_end", "b_number": "b_number_end","p_number":"p_number_end"}, inplace=True)
+                 "p_name": "p_name_end", "b_number": "b_number_end", "p_number": "p_number_end"}, inplace=True)
 
     # drop redundant columns
     df_start.drop(['p_spot', 'p_place_type', 'trip',
@@ -177,7 +189,7 @@ def get_trip_data(path=None, withWeather=True):
     df_final = df_final[(df_final["p_number_start"] != 0) & (df_final["p_number_end"] != 0)]
 
     # drop the redundant columns
-    df_final.drop(["index_start", "index_end", "b_number_end","p_number_start","p_number_end"], inplace=True, axis=1)
+    df_final.drop(["index_start", "index_end", "b_number_end", "p_number_start", "p_number_end"], inplace=True, axis=1)
 
     df_final.rename(columns={"b_number_start": "b_number"}, inplace=True)
 
@@ -185,29 +197,19 @@ def get_trip_data(path=None, withWeather=True):
     df_final["datetime_start"] = pd.to_datetime(df_final["datetime_start"])
     df_final["datetime_end"] = pd.to_datetime(df_final["datetime_end"])
 
-
-
-
-    if withWeather:
-        return __addFeatureColumns(df_final=df_final, df_weather= __readWeatherFiles())
+    if with_weather:
+        if head:
+            return __add_feature_columns(df_final=df_final, df_weather=__process_weather_files(head=True))
+        else:
+            return __add_feature_columns(df_final=df_final, df_weather=__process_weather_files(head=False))
     else:
-        return __addFeatureColumns(df_final=df_final)
-
-
-def get_write_trip_data(df):
-    """
-    saves the final dataframe in a new csv file.
-     :parameter
-        df: the dataframe to be saved as csv
-    """
-
-    df.to_csv(os.path.join(CONSTANTS.PATH_PROCESSED.value, 'dortmund_trips.csv'))
-    print("Transformed trip data for Dortmund successfully saved in a csv file!")
+        return __add_feature_columns(df_final=df_final)
 
 
 def __prep_geo_data(df):
     """
-    Filters the Geo-dataframe (postal code areas) of Germany to Dortmund and calculates the center of each postal code area.
+    Filters the Geo-dataframe (postal code areas) of Germany to Dortmund and calculates the center of each postal code
+    area.
     :parameter
         df: DataFrame that contains geographical information (postal code areas) of Germany
     """
@@ -230,7 +232,7 @@ def __make_point(row):
     return Point(row.longitude_start, row.latitude_start)
 
 
-def __get_time_data(df):
+def __get_time_delta(df):
     # get the trip data for different times of a day
     fife_nine = df.loc[(df.hour < 10) & (df.hour > 5)]
     ten_three = df.loc[(df.hour < 16) & (df.hour > 9)]
@@ -300,4 +302,3 @@ def __get_month_data(df):
             trips_dec[['latitude', 'longitude', 'count']].values.tolist()]
 
     return data
-
