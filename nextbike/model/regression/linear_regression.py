@@ -5,7 +5,6 @@ from sklearn.model_selection import GridSearchCV, train_test_split
 
 from nextbike.model.regression.parameters import model_dic
 from nextbike.model.utils import __get_result
-from nextbike.io.output import save_model
 
 import time
 import numpy as np

@@ -2,12 +2,17 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import RandomizedSearchCV
 from sklearn.ensemble import RandomForestRegressor
 
-from nextbike.io.output import save_model
+from nextbike.io.output import __save_model, __save_prediction
+from nextbike.io.input import __read_model, read_file
+from nextbike.constants import CONSTANTS
+
 import numpy as np
+import pandas as pd
+import os
 import time
+from pathlib import Path
 
 # arrays for results
 model, r2, rmse, mae, exetime, desc = [], [], [], [], [], []
@@ -44,6 +49,8 @@ def __init__(df, log=False):
     X_test_scaled = scaler.transform(X_test)
 
     return {
+        'X': X,
+        'y': y,
         'X_train': X_train,
         'X_test': X_test,
         'y_train': y_train,
@@ -94,7 +101,7 @@ def train(init):
     rfr.fit(init['X_train_scaled'], init['y_train'])
     #print('training done')
 
-    save_model(rfr, 'duration_model')
+    __save_model(rfr, 'duration_model')
     print('model saved under data/output/duration_model.pkl')
 
     pred = rfr.predict(init['X_test_scaled'])
@@ -105,6 +112,48 @@ def train(init):
     execution_time = (end - start) / 60
 
     print('execution time:', execution_time)
+
+
+def predict(df_trips, df_test):
+
+    X_train = df_trips[["month", "weekday", "day_of_year", "hour", "minute", "latitude_start", "longitude_start",
+                        "area_start", "temperature °C", "precipitation", "distanceToUniversity",
+                        "distanceToCentralStation"]]
+
+    y_train = df_trips["trip_duration"]
+
+    X_test = df_test[["month", "weekday", "day_of_year", "hour", "minute", "latitude_start", "longitude_start",
+                      "area_start", "temperature °C", "precipitation", "distanceToUniversity",
+                      "distanceToCentralStation"]]
+
+    y_test = df_test["trip_duration"]
+
+    scaler = StandardScaler()
+    scaler.fit(X_train)
+    X_train_scaled = scaler.transform(X_train)
+
+    scaler.fit(X_test)
+    X_test_scaled = scaler.transform(X_test)
+
+    mod = __read_model('duration_model')
+    print('trained model successfully imported')
+
+    pred = mod.predict(X_test_scaled)
+    pred_train = mod.predict(X_train_scaled)
+
+    df_pred = pd.DataFrame(pred, columns=['predictions'])
+    __save_prediction(df_pred, 'duration_prediction')
+    print('predict values saved under data/output/duration_prediction.csv')
+
+    print("w/o cross-validation:")
+    print("R^2-Score is: {}".format(mod.score(X_train_scaled, y_train)))
+    print("RMSE: {}".format(np.sqrt(mean_squared_error(y_train, pred_train))))
+    print("MAE: {}".format(mean_absolute_error(y_train, pred_train)))
+    print("")
+    print("w/ cross-validation")
+    print("R2-Score is: {}".format(mod.score(X_test_scaled, y_test)))
+    print("RMSE: {}".format(np.sqrt(mean_squared_error(y_test, pred))))
+    print("MAE: {}".format(mean_absolute_error(y_test, pred)))
 
 
 def _get_results(model, X_train_scaled,pred_train,X_test_scaled, pred, init):
@@ -178,8 +227,3 @@ def optimize_hyper_parameters_random_forest(X, y):
     # print results
     print(rfc_random.best_params_)
 '''
-
-
-def test(name):
-    __test = RandomForestClassifier()
-    save_model(__test, name)

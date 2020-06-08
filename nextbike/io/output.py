@@ -31,7 +31,7 @@ def __save_trip_data(df, output):
         df.to_csv(os.path.join(CONSTANTS.PATH_OUTPUT.value, output))
 
 
-def save_model(model, name):
+def __save_model(model, name):
     """
 
     :param model:
@@ -40,19 +40,20 @@ def save_model(model, name):
     """
     d = Path(__file__).resolve().parents[2]
 
-    ldts = datetime.now().strftime('%H:%M:%S')
-    with open(os.path.join(d, CONSTANTS.PATH_OUTPUT.value + name + "_"+ldts + ".pkl"), 'wb') as handle:
+    # ldts = datetime.now().strftime('%H:%M:%S')
+    with open(os.path.join(d, CONSTANTS.PATH_OUTPUT.value + name + ".pkl"), 'wb') as handle:
         pickle.dump(model, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
-def save_prediction(df, name):
+def __save_prediction(df, name):
     """
 
     :param df:
     :param name:
     :return:
     """
-    df.to_csv(os.path.join(HEAD, os.path.join(__FILE__, CONSTANTS.PATH_OUTPUT.value + name)), index=False)
+    d = Path(__file__).resolve().parents[2]
+    df.to_csv((os.path.join(d, CONSTANTS.PATH_OUTPUT.value + name + ".csv")), index=False)
 
 
 
