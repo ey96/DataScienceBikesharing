@@ -2,6 +2,8 @@ import pandas as pd
 import os
 import pickle
 import geopandas as gpd
+from pathlib import Path
+
 from nextbike.constants import CONSTANTS
 from nextbike.constants import __FILE__
 
@@ -62,8 +64,10 @@ def read_file(path=None, **kwargs):
         print("Data file not found. Path was " + path)
 
 
-def __read_model():
-    path = os.path.join(__FILE__, utils.get_data_path(), "output/model.pkl")
-    with open(path, "rb") as f:
-        model = pickle.load(f)
+def __read_model(name):
+
+    d = Path(__file__).resolve().parents[2]
+
+    with open(os.path.join(d, CONSTANTS.PATH_OUTPUT.value + name + ".pkl"), 'wb') as handle:
+        model = pickle.load(handle)
     return model

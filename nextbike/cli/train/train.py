@@ -1,7 +1,6 @@
 import click
 from halo import Halo
 from datetime import datetime
-from pathlib import Path
 
 from nextbike.constants import HEAD
 from nextbike.model.ensemble import random_forest
@@ -37,7 +36,7 @@ def train(path, model_type):
 
     # start the spinner
     spinner.start()
-    spinner.succeed('[' + datetime.now().strftime('%H:%M:%S') + ']' + '1/3 data was load successfully from ' + path)
+    spinner.succeed('[' + datetime.now().strftime('%H:%M:%S') + ']' + ' 1/3 data was load successfully from ' + path)
 
     file = HEAD + path
 
@@ -47,25 +46,29 @@ def train(path, model_type):
     df = cluster.__get_X_scaled(df)
 
     if model_type == 'duration':
-        spinner.succeed('[' + datetime.now().strftime('%H:%M:%S') + ']' + '2/3 training of duration-model started')
+        spinner.succeed('[' + datetime.now().strftime('%H:%M:%S') + ']' + ' 2/3 training of duration-model started')
         spinner.warn('[ATTENTION] this step can take a couple of minutes')
 
         # call our training model
         init = random_forest.__init__(df)
         # train
         random_forest.train(init)
-        spinner.succeed('[' + datetime.now().strftime('%H:%M:%S') + ']' + '3/3 training done.')
+
+        spinner.succeed('[' + datetime.now().strftime('%H:%M:%S') + ']' + ' 3/3 training done.')
+        spinner.stop()
 
     if model_type == 'destination':
-        spinner.succeed('[' + datetime.now().strftime('%H:%M:%S') + ']' + '2/3 training of destination-model started')
+        spinner.succeed('[' + datetime.now().strftime('%H:%M:%S') + ']' + ' 2/3 training of destination-model started')
         spinner.warn('[ATTENTION] this step can take a couple of minutes')
         # call out training model
         init = random_forest_class.__init__(df)
         # train
         random_forest_class.train(init)
-        spinner.succeed('[' + datetime.now().strftime('%H:%M:%S') + ']' + '3/3 training done.')
+
+        spinner.succeed('[' + datetime.now().strftime('%H:%M:%S') + ']' + ' 3/3 training done.')
+        spinner.stop()
     # both
-    else:
+    elif model_type == 'both':
         # duration-model
         spinner.succeed('[' + datetime.now().strftime('%H:%M:%S') + ']' + 'started to train the duration-model')
         spinner.warn('[ATTENTION] this step can take a couple of minutes')
@@ -82,6 +85,8 @@ def train(path, model_type):
         init = random_forest_class.__init__(df)
         # train
         random_forest_class.train(init)
-        spinner.succeed('[' + datetime.now().strftime('%H:%M:%S') + ']' + '3/3 training of destination-model done.')
 
-    spinner.stop()
+        spinner.succeed('[' + datetime.now().strftime('%H:%M:%S') + ']' + ' 3/3 training of destination-model done.')
+        spinner.stop()
+    else:
+        click.echo('this should never happen')

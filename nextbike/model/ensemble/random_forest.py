@@ -85,14 +85,14 @@ def rfr(init, estimator=RandomForestRegressor()):
 def train(init):
     start = time.time()  # to measure execution time
 
-    print('init training parameters')
+    #print('init training parameters')
     # fitting a random forrest regressor
     rfr = RandomForestRegressor(max_features="auto", n_estimators=1155, max_depth=70, min_samples_split=10,
                                 min_samples_leaf=8, bootstrap=True)
 
-    print('training started')
+    #print('training started')
     rfr.fit(init['X_train_scaled'], init['y_train'])
-    print('training done')
+    #print('training done')
 
     save_model(rfr, 'duration_model')
     print('model saved under data/output/duration_model.pkl')

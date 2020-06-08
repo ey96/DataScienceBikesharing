@@ -38,7 +38,7 @@ def save_model(model, name):
     :return:
     """
     d = Path(__file__).resolve().parents[2]
-    # pickle.dump(model, open(os.path.join(d, CONSTANTS.PATH_OUTPUT.value + "test.p")), 'wb')
+
     with open(os.path.join(d, CONSTANTS.PATH_OUTPUT.value + name + ".pkl"), 'wb') as handle:
         pickle.dump(model, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
