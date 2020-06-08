@@ -62,11 +62,11 @@ Options:
 
 ##### 2. Example
 ```console
-foo@bar:~ss_20_pds$ nextbike transform data/internal/dortmund.csv
+foo@bar:~ss_20_pds$ nextbike transform data/internal/dortmund_test.csv
 ```
 
 ```console
-foo@bar:~ss_20_pds$ nextbike transform data/internal/dortmund.csv --nw --name no_weather_example_name.csv
+foo@bar:~ss_20_pds$ nextbike transform data/internal/dortmund_test.csv --nw --name no_weather_example_name.csv
 ```
 
 #### Train
@@ -100,12 +100,26 @@ Options:
  
  ##### 2. Example
 ```console
-foo@bar:~ss_20_pds$ nextbike train data/internal/dortmund.csv both
+foo@bar:~ss_20_pds$ nextbike train data/internal/dortmund_test.csv both
 ```
 
 ```console
-foo@bar:~ss_20_pds$ nextbike train data/internal/dortmund.csv duration
+foo@bar:~ss_20_pds$ nextbike train data/internal/dortmund_test.csv duration
 ```
 ```console
-foo@bar:~ss_20_pds$ nextbike train data/internal/dortmund.csv destination
+foo@bar:~ss_20_pds$ nextbike train data/internal/dortmund_test.csv destination
+```
+
+#### Predict
+
+ ##### 2. Example
+```console
+foo@bar:~ss_20_pds$ nextbike predict data/internal/dortmund_test.csv both
+```
+
+```console
+foo@bar:~ss_20_pds$ nextbike predict data/internal/dortmund_test.csv duration
+```
+```console
+foo@bar:~ss_20_pds$ nextbike predict data/internal/dortmund_test.csv destination
 ```
