@@ -47,7 +47,7 @@ def __init__(df):
     }
 
 
-def train(init):
+def train(init, value=False):
 
     print('init training parameters')
     mod = RandomForestClassifier(n_estimators=1000, min_samples_split=2, min_samples_leaf=1, max_depth=10,
@@ -60,12 +60,13 @@ def train(init):
     save_model(mod, 'destination_model')
     print('model saved under data/output/destination_model.pkl')
 
-    y_pred = mod.predict(init['X_test'])
+    if value is True:
+        y_pred = mod.predict(init['X_test'])
 
-    rfc_cv_score = cross_val_score(mod, init['X'], init['y'], cv=10)
-    __get_result(rfc_cv_score, init['y_test'], y_pred)
+        rfc_cv_score = cross_val_score(mod, init['X'], init['y'], cv=10)
+        __get_result(rfc_cv_score, init['y_test'], y_pred)
 
-    print('10 fold cross validation' + np.mean(cross_val_score(mod, init['X_train'], init['y_train'], cv=10)))
+        print('10 fold cross validation' + np.mean(cross_val_score(mod, init['X_train'], init['y_train'], cv=10)))
 
 
 def explore(typ, init, df):
