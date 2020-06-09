@@ -5,9 +5,11 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split, RandomizedSearchCV, cross_val_score
 
 import numpy as np
+import pandas as pd
 import time
 
-from nextbike.io import save_model
+from nextbike.io.output import __save_model, __save_prediction
+from nextbike.io.input import __read_model
 
 algorithm, precision, recall, f1score, support, exetime, desc = [], [], [], [], [], [], []
 dic = {
@@ -57,7 +59,7 @@ def train(init, value=False):
     mod.fit(init['X_train'], init['y_train'])
     print('training done')
 
-    save_model(mod, 'destination_model')
+    __save_model(mod, 'destination_model')
     print('model saved under data/output/destination_model.pkl')
 
     if value is True:
@@ -106,6 +108,36 @@ def explore(typ, init, df):
         algorithm.append("Random Forrest")
         exetime.append((end - start))
         desc.append("Predicts towardsUniversity (complement)")
+
+
+def predict(df_trips, df_test):
+
+    X_train = df_trips[['weekend', 'hour', 'distanceToUniversity', 'month', 'area_start']]
+
+    y_train = df_trips['tripLabel']
+
+    # using the received test set as the test set (data for July)
+    X_test = df_test[['weekend', 'hour', 'distanceToUniversity', 'month', 'area_start']]
+
+    y_test = df_test['tripLabel']
+
+    mod = __read_model('destination_model')
+    print('trained model successfully imported')
+
+    pred = mod.predict(X_test)
+    pred_train = mod.predict(X_train)
+
+    df_pred = pd.DataFrame(pred, columns=['predictions'])
+    __save_prediction(df_pred, 'destination_prediction')
+    print('predict values saved under data/output/destination_prediction.csv')
+
+    print("=== Classification Report ===")
+    print(classification_report(y_test, pred))
+    print('\n')
+
+    print("=== Classification Report ===")
+    print(classification_report(y_train, pred_train))
+    print('\n')
 
 
 def predict_trip_label(init, mod=RandomForestClassifier()):

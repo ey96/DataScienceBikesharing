@@ -68,6 +68,6 @@ def __read_model(name):
 
     d = Path(__file__).resolve().parents[2]
 
-    with open(os.path.join(d, CONSTANTS.PATH_OUTPUT.value + name + ".pkl"), 'wb') as handle:
+    with open(os.path.join(d, CONSTANTS.PATH_OUTPUT.value + name + ".pkl"), 'rb') as handle:
         model = pickle.load(handle)
     return model

@@ -32,8 +32,9 @@ except ImportError as e:
 
 
 # ab task c
-def create_map(shape="dortmund_plz.geojson", center=CONSTANTS.CENTER_OF_DORTMUND.value, tiles=CONSTANTS.TILES.value,
-               attr=CONSTANTS.ATTR.value, zoom_start=12, min_zoom=11, height="100%", width="100%"):
+def create_map(shape="dortmund_plz.geojson", center=CONSTANTS.CENTER_OF_DORTMUND.value, #tiles=CONSTANTS.TILES.value,
+               #attr=CONSTANTS.ATTR.value,
+               zoom_start=12, min_zoom=11, height="100%", width="100%"):
     """
     Creats a Folium-Map with dortmund as a shape.
 
@@ -48,15 +49,19 @@ def create_map(shape="dortmund_plz.geojson", center=CONSTANTS.CENTER_OF_DORTMUND
     :return: a Folium-map with the your either your preferences or the default settings
     """
     map = folium.Map(
-        attr=attr,
+        #attr=attr,
         location=center,
-        tiles=tiles,
+        #tiles=tiles,
         zoom_start=zoom_start,
         min_zoom=min_zoom,
         height=height,
         width=width
     )
-    folium.GeoJson(input.__read_geojson(shape), name='geojson').add_to(map)
+    folium.GeoJson(
+        input.__read_geojson(shape),
+        name='geojson',
+        style_function=lambda feature: {"color": "black", "weight": 1, },
+        highlight_function=lambda x: {"weight": 2, "color": "black", "fillOpacity": 0.5},).add_to(map)
 
     return map
 
@@ -87,6 +92,8 @@ def show_station_map(df):
             fill=True,
             fill_color='#red'
         ).add_to(stations_map)
+
+        stations_map.save('../doc/interactive_maps/show_station_map.html')
 
     return stations_map
 
@@ -126,6 +133,7 @@ def show_rental_for_june(df):
         highlight_function=lambda x: {"weight": 2, "color": "black", "fillOpacity": 0.5},
         tooltip=folium.features.GeoJsonTooltip(fields=['count', 'plz'], aliases=['Amount of rentals:', 'Postcal code:'])
     ).add_to(districts_map)
+    districts_map.save('../doc/interactive_maps/show_rental_for_june.html')
 
     return districts_map
 
@@ -153,6 +161,7 @@ def show_time_heatmap(df, df2):
         geo_data=df2,
         fill_opacity=0.1,
         line_opacity=1, ).add_to(heatmap_daily)
+    heatmap_daily.save('../doc/interactive_maps/show_time_heatmap.html')
 
     return heatmap_daily
 
@@ -181,6 +190,8 @@ def show_heatmap_monthly_per_district(df, df2):
         fill_opacity=0.1,
         line_opacity=1, ).add_to(heatmap_monthly_per_district)
 
+    heatmap_monthly_per_district.save('../doc/interactive_maps/show_heatmap_monthly_per_district.html')
+
     return heatmap_monthly_per_district
 
 
@@ -196,10 +207,12 @@ def station_capacity(df, radius=20):
     tmp_map.add_child(plugins.HeatMap(df[["latitude_start", "longitude_start"]], radius=radius))
     tmp_map.add_child(plugins.HeatMap(df[["latitude_end", "longitude_end"]], radius=radius))
 
+    tmp_map.save('../doc/interactive_maps/station_capacity.html')
+
     return tmp_map
 
 
-def most_used_station(df, random=True, amount=1000):
+def most_used_station(df, amount, random=True):
     """
     Creates a grouping of the most-used-stations. You can either choose to picks random stations or the first "amount"
      of stations in the df
@@ -210,6 +223,10 @@ def most_used_station(df, random=True, amount=1000):
     :param amount: how much random rows should be included
     :return: Folium-Map
     """
+
+    if amount <= 0:
+        raise Exception('amount has to be > 0')
+
     tmp_map = create_map()
     mc = MarkerCluster()
     if random:
@@ -224,10 +241,13 @@ def most_used_station(df, random=True, amount=1000):
             i = i + 1
         else:
             break
+
+    tmp_map.save('../doc/interactive_maps/top_'+str(amount)+'_used_station.html')
+
     return tmp_map
 
 
-def show_trips(df, random=True, amount=500):
+def show_trips(df, amount, random=True):
     """
     Creates a Foliom-ColorLine, which shows random trips. You can either choose to picks random trips or the
     first "amount" of trips in the df
@@ -238,6 +258,9 @@ def show_trips(df, random=True, amount=500):
     :param amount: The amount of trips, you want to show (ATTENTION: needs a lot of RAM)
     :return: Folium-ColorLine Map
     """
+
+    if amount <= 0:
+        raise Exception('amount has to be > 0')
     tmp_map = create_map()
     if random:
         df = shuffle(df)
@@ -245,7 +268,8 @@ def show_trips(df, random=True, amount=500):
     i = 0
     for index, row in df.iterrows():
         if i <= amount:
-            folium.ColorLine([[row["latitude_start"],row["longitude_start"]],[row["latitude_end"],row["longitude_end"]]],
+            folium.ColorLine([[row["latitude_start"], row["longitude_start"]],
+                              [row["latitude_end"], row["longitude_end"]]],
                              colors=[0, 1, 2],
                              colormap=["blue", "green"],
                              weight=1,
@@ -253,6 +277,8 @@ def show_trips(df, random=True, amount=500):
             i = i + 1
         else:
             break
+    tmp_map.save('../doc/interactive_maps/show_'+str(amount)+'trips.html')
+
     return tmp_map
 
 
@@ -281,17 +307,68 @@ def show_map_at_specific_day(df, date="2019-01-20", street="Signal Iduna Park", 
 
     df_tmp = df[(df['datetime_start'] >= date + " 00:00:00") & (df['datetime_start'] <= date + " 23:59:59")]
 
-    tmp_map.add_child(plugins.HeatMap(df_tmp["coordinates_start"], radius=20))
-    tmp_map.add_child(plugins.HeatMap(df_tmp["coordinates_end"], radius=20))
+    tmp_map.add_child(plugins.HeatMap(df[["latitude_start", "longitude_start"]], radius=20))
+    tmp_map.add_child(plugins.HeatMap(df[["latitude_start", "longitude_start"]], radius=20))
 
     for index, row in df_tmp.iterrows():
-        folium.ColorLine([row["coordinates_start"], row["coordinates_end"]],
+        folium.ColorLine([[row["latitude_start"], row["longitude_start"]], [row["latitude_end"], row["longitude_end"]]],
                          colors=[0, 1, 2],
-                         colormap=["red", "blue"],
+                         colormap=["blue", "red"],
                          weight=1,
                          opacity=0.5).add_to(tmp_map)
 
+    tmp_map.save('../doc/interactive_maps/show_map_at_'+str(street)+'_specific_day_' + str(date)+'.html')
     return tmp_map
+
+
+def show_one_moment(df, df2):
+    bikenumer_per_stations_map = create_map()
+
+    # draw the borders of Dortmund and its districts
+    folium.Choropleth(
+        geo_data=df,
+        fill_color='grey',
+        fill_opacity=0.4,
+    ).add_to(bikenumer_per_stations_map)
+
+    for index, row in df2.iterrows():
+        bikenumber = int(row['NumberOfBikes'])
+        station_name = row['p_name']
+        station_info = "Name: {}\n\nNumber of bikes: {}\n".format(station_name, bikenumber)
+
+        folium.Circle(
+            location=[row['latitude'], row['longitude']],
+            popup=station_info,
+            radius=row['NumberOfBikes'] * 20,
+            color='red',
+            fill=True,
+            fill_color='#red'
+        ).add_to(bikenumer_per_stations_map)
+
+    bikenumer_per_stations_map.save('../doc/interactive_maps/show_one_moment'+str(CONSTANTS.FILTER_FOR_ONE_MOMENT.value)+'.html')
+
+    return bikenumer_per_stations_map
+
+
+def show_one_moment_at_map(df, df2):
+    bikenumer_per_stations_map = create_map()
+
+    # draw the borders of Dortmund and its districts
+    folium.Choropleth(
+        geo_data=df,
+        fill_color='grey',
+        fill_opacity=0.4,
+    ).add_to(bikenumer_per_stations_map)
+
+    for index, row in df2.iterrows():
+        bikenumber = int(row['NumberOfBikes'])
+        station_name = row['p_name']
+        station_info = "Name: {}\n\nNumber of bikes: {}\n".format(station_name, bikenumber)
+        folium.Marker(location=[row['latitude'], row['longitude']], popup=station_info).add_to(
+            bikenumer_per_stations_map)
+
+    bikenumer_per_stations_map.save('../doc/interactive_maps/show_one_moment_at_map'+str(CONSTANTS.FILTER_FOR_ONE_MOMENT.value)+'.html')
+    return bikenumer_per_stations_map
 
 
 def replace_umlauts(station_name):
