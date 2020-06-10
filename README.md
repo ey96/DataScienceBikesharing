@@ -13,7 +13,7 @@ This repository contains all materials that were developed in the team for the l
     │   ├── figures                 # stores all the figures, which are gernerated through the analysis
     │   ├── interactive_figure      # maps as html-files for presentation
     │   ├── Timeline_PDS2020.docx   # our timeline
-    │   ├── Presentation_PDS.pptx
+    │   ├── Presentation_PDS.pptx   # our presentation
     │   └── PDS_Report_Dortmund.pdf # our group-report
     ├── nextbike                  # our python-project (i.e., src)
     ├── notebooks                                         
