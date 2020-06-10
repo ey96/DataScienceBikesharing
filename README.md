@@ -1,7 +1,40 @@
 ![CI](https://github.com/t00m-dev/ss_20_pds/workflows/CI/badge.svg?branch=master)
 # ss_20_pds
 This repository contains all materials that were developed in the team for the lecture "Programming Data Science" at the University of Cologne.
-## project structure 
+
+## Table of Contents (Optional)
+
+> If your `README` has a lot of info, section headers might be nice.
+
+- [Installation](#installation)
+- [Project Structure](#project_structure)
+- [Command Line Interface](#Command_Line_Interface)
+
+
+
+## Installation
+
+#### 1. Clone the project
+```console
+foo@bar:~downloads$ git clone https://github.com/t00m-dev/ss_20_pds.git
+``` 
+#### 2. Navigate into the root of the project (ss_20_pds)
+```console
+foo@bar:~downloads$ cd ss_20_pds
+``` 
+
+#### 3. Install Nextbike
+
+```console
+foo@bar:~ss_20_pds$ pip3 install -e .
+```
+or
+```console
+foo@bar:~ss_20_pds$ pip install -e .
+```
+
+---
+## project_structure 
     .
     ├── .github                   # contains internal setting e.g. PR/Issue -template, workflows    
     ├── data                      
@@ -24,19 +57,7 @@ This repository contains all materials that were developed in the team for the l
     ├── README.md
     └── setup.py
     
-## Command Line Interface (CLI)
-
-#### 1. How to install the project? 
-CLI root of the project
-
-```console
-foo@bar:~ss_20_pds$ pip3 install .
-``` 
-
-```console
-foo@bar:~ss_20_pds$ pip3 install -e .
-```
-
+## Command_Line_Interface
 
 #### Transformation 
 
