@@ -2,9 +2,7 @@
 # ss_20_pds
 This repository contains all materials that were developed in the team for the lecture "Programming Data Science" at the University of Cologne.
 
-## Table of Contents (Optional)
-
-> If your `README` has a lot of info, section headers might be nice.
+## Table of Contents
 
 - [Installation](#installation)
 - [Project Structure](#project_structure)
