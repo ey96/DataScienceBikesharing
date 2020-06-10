@@ -2,7 +2,6 @@
 # ss_20_pds
 This repository contains all materials that were developed in the team for the lecture "Programming Data Science" at the University of Cologne.
 ## project structure 
-
     .
     ├── .github                   # contains internal setting e.g. PR/Issue -template, workflows    
     ├── data                      
@@ -11,9 +10,10 @@ This repository contains all materials that were developed in the team for the l
     │   ├── output                # contains the output from the CLI-commands (e.g., .pkl-files, transformed csv-files)
     │   └── processed             # contains proccessed csv-files 
     ├── doc                       
-    │   ├── figures               # stores all the figures, which are gernerated through the analysis
-    │   ├── Timeline_PDS2020.docx # our timeline
-    │   └── report.pdf            # our group-report
+    │   ├── figures                 # stores all the figures, which are gernerated through the analysis
+    │   ├── interactive_figure      # maps as html-files for presentation
+    │   ├── Timeline_PDS2020.docx   # our timeline
+    │   └── PDS_Report_Dortmund.pdf # our group-report
     ├── nextbike                  # our python-project (i.e., src)
     ├── notebooks                                         
     │   ├── archiv                                      # contains all the 'plain'- notebooks 
